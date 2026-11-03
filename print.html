@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2f80ed">
+<title>今日待办</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-container">
+  <div class="no-print flex gap-2 mb-3">
+    <button class="btn btn-primary btn-sm" onclick="copyText()">📋 复制纯文本</button>
+    <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ 打印</button>
+  </div>
+
+  <div class="card print-todo">
+    <div style="font-size:18px;font-weight:800;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:14px;" id="p-title">今日待办</div>
+    <div id="p-list"></div>
+    <div id="p-choice" style="margin-top:14px;"></div>
+    <div style="margin-top:18px;border-top:1px dashed #999;padding-top:10px;" id="p-encourage"></div>
+    <div style="margin-top:6px;font-size:12px;color:#666;">做完一项就划掉一项 · 做不完的明天继续</div>
+  </div>
+</div>
+<div id="bottom-nav" style="display:none;"></div>
+
+<script src="js/data/kpoints.js"></script>
+<script src="js/store.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  const E = J1Engine;
+  const date = new URLSearchParams(location.search).get('date') || E.date.today();
+  let plain = '';
+
+  function render() {
+    document.getElementById('p-title').textContent = '今日待办 · ' + app.formatDate(date);
+    const list = (J1Store.todos[date] || []).filter(t => t.status !== 'skipped');
+    const pending = list.filter(t => t.status === 'pending' || t.status === 'partial');
+
+    const lines = ['今日待办 · ' + app.formatDate(date), ''];
+    const listBox = document.getElementById('p-list');
+    if (pending.length === 0) {
+      listBox.textContent = '今天的都做完了，好好休息 🎉';
+      lines.push('今天的都做完了，好好休息 🎉');
+    } else {
+      const items = pending.map(t => {
+        const line = '□ ' + t.title + '（约 ' + (t.estMinutes || 15) + ' 分钟）';
+        lines.push(line);
+        return '<div style="margin:10px 0;">' + line + '</div>';
+      });
+      listBox.innerHTML = items.join('');
+    }
+
+    // A/B/C 顺序（若妈妈在待办页选过组）
+    const groups = { A: [], B: [], C: [] };
+    pending.forEach(t => { if (t.choiceGroup) groups[t.choiceGroup].push(t.title); });
+    const choiceBox = document.getElementById('p-choice');
+    let hasChoice = false;
+    ['A', 'B', 'C'].forEach(k => { if (groups[k].length) hasChoice = true; });
+    if (hasChoice) {
+      let html = '<div style="font-weight:700;margin-bottom:6px;">今天的顺序你选：</div>';
+      let started = false;
+      ['A', 'B', 'C'].forEach(k => {
+        if (!groups[k].length) return;
+        html += '<div style="margin:4px 0;">' + k + '. ' + groups[k].join('；') + '</div>';
+        lines.push((started ? '' : '') + k + '. ' + groups[k].join('；'));
+        started = true;
+      });
+      choiceBox.innerHTML = html;
+    }
+
+    // 鼓励语（坚持习惯场景随机，无任何评价与比较）
+    const praises = J1Store.praiseLibrary.filter(p => p.scene === 'habit' || p.scene === 'hard_task');
+    const p = praises.length ? praises[Math.floor(Math.random() * praises.length)] : null;
+    const text = p ? p.text : '每天坐下来的这 15 分钟，都算数。';
+    document.getElementById('p-encourage').textContent = text;
+    lines.push('', text);
+
+    plain = lines.join('\n');
+  }
+
+  window.copyText = function () {
+    app.copyText(plain).then(ok => app.toast(ok ? '已复制' : '复制失败'));
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    try { render(); } catch (e) { console.error(e); }
+  });
+})();
+</script>
+</body>
+</html>

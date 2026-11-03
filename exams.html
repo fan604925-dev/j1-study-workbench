@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2f80ed">
+<title>考试记录 · 初一学习工作台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-container">
+  <div class="sticky-header flex items-center justify-between">
+    <a href="index.html" class="text-sm" style="color:var(--brand);text-decoration:none;">‹ 返回看板</a>
+    <div class="font-bold" style="color:var(--text-strong);">📝 考试记录</div>
+    <button class="btn btn-sm btn-primary" onclick="openModal()">＋ 录考试</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📈 分数趋势（百分制）</div>
+    <div class="chip-row scroll-x mb-2" id="subj-chips"></div>
+    <div style="height:180px;"><canvas id="chart-exam"></canvas></div>
+    <div class="text-xs mt-2" id="exam-trend-text" style="color:var(--muted);"></div>
+  </div>
+
+  <div id="exam-list"></div>
+</div>
+<div id="bottom-nav"></div>
+
+<div class="modal-overlay" id="exam-modal">
+  <div class="modal-content">
+    <div class="font-bold text-base mb-2">记录一场考试</div>
+    <div class="form-row">
+      <div><label class="form-label">科目</label>
+        <select class="form-input" id="e-subject">
+          <option value="math">数学</option><option value="chinese">语文</option><option value="english">英语</option>
+        </select></div>
+      <div><label class="form-label">类型</label>
+        <select class="form-input" id="e-type">
+          <option value="unit">单元测</option><option value="quiz">随堂测</option>
+          <option value="monthly">月考</option><option value="midterm">期中</option><option value="final">期末</option>
+        </select></div>
+    </div>
+    <label class="form-label">日期</label>
+    <input class="form-input" id="e-date" type="date">
+    <div class="form-row">
+      <div><label class="form-label">得分</label><input class="form-input" id="e-score" type="number" min="0"></div>
+      <div><label class="form-label">满分</label><input class="form-input" id="e-full" type="number" min="1" value="100"></div>
+    </div>
+    <div class="form-row">
+      <div><label class="form-label">班级位次（选填）</label><input class="form-input" id="e-classrank" type="number" min="1"></div>
+      <div><label class="form-label">年级位次（选填）</label><input class="form-input" id="e-graderank" type="number" min="1"></div>
+    </div>
+    <label class="form-label">试卷来源（如：学校单元测 / 教辅卷）</label>
+    <input class="form-input" id="e-source" type="text" placeholder="选填">
+    <div class="flex gap-2 mt-4">
+      <button class="btn btn-primary flex-1" onclick="saveExam()">保存</button>
+      <button class="btn btn-outline" onclick="document.getElementById('exam-modal').classList.remove('active')">取消</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data/kpoints.js"></script>
+<script src="js/store.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  const E = J1Engine;
+  let subjFilter = 'all';
+
+  const typeName = { unit: '单元测', quiz: '随堂测', monthly: '月考', midterm: '期中', final: '期末' };
+
+  function render() {
+    // 科目筛选
+    document.getElementById('subj-chips').innerHTML =
+      ['all', 'math', 'chinese', 'english'].map(s =>
+        '<span class="chip ' + (subjFilter === s ? 'active' : '') + '" onclick="setFilter(\'' + s + '\')">' +
+        (s === 'all' ? '全部' : app.subjectName(s)) + '</span>').join('');
+
+    const exams = J1Store.exams.slice().sort((a, b) => a.date < b.date ? 1 : -1);
+    const shown = subjFilter === 'all' ? exams : exams.filter(e => e.subject === subjFilter);
+
+    // 趋势图（时间正序）
+    const chartData = shown.slice().reverse();
+    if (J1Charts.available() && chartData.length) {
+      J1Charts.examTrend('exam', document.getElementById('chart-exam'),
+        chartData.map(e => e.date.slice(5)),
+        chartData.map(e => Math.round(e.score / (e.fullScore || 100) * 100)));
+    }
+    // 趋势文字：只跟自己比
+    const txt = document.getElementById('exam-trend-text');
+    if (chartData.length >= 2) {
+      const a = chartData[chartData.length - 2], b = chartData[chartData.length - 1];
+      const pa = a.score / a.fullScore, pb = b.score / b.fullScore;
+      const diff = Math.round((pb - pa) * 100);
+      txt.textContent = '最近一次 vs 上一次：' + (diff > 0 ? '进步 ' + diff + ' 个百分点 👍' :
+        diff === 0 ? '持平，稳住了' : '回落 ' + (-diff) + ' 个百分点，正好用错题库看看卡在哪');
+      txt.style.color = diff > 0 ? 'var(--success)' : diff === 0 ? 'var(--muted)' : 'var(--warning)';
+    } else {
+      txt.textContent = '录两场以上就能看趋势（只跟自己比，不比排名）';
+    }
+
+    // 列表
+    const box = document.getElementById('exam-list');
+    if (exams.length === 0) {
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div>' +
+        '<div class="text-sm">还没有考试记录</div><div class="text-xs mt-1">每场考试录进来，配错题一起分析</div></div>';
+      return;
+    }
+    box.innerHTML = exams.map(e => {
+      const pct = Math.round(e.score / (e.fullScore || 100) * 100);
+      const linked = (e.mistakeIds || []).length;
+      return '<div class="card">' +
+        '<div class="flex items-center justify-between mb-1">' +
+        '<div class="flex items-center gap-2">' + app.subjectTag(e.subject) +
+        '<span class="tag tag-soft">' + (typeName[e.type] || '考试') + '</span>' +
+        '<span class="text-xs" style="color:var(--muted);">' + e.date + '</span></div>' +
+        '<div class="font-bold" style="color:var(--text-strong);">' + e.score + '<span class="text-xs" style="color:var(--muted);">/' + e.fullScore + '</span></div></div>' +
+        app.progressBar(pct / 100) +
+        '<div class="text-xs mt-1" style="color:var(--muted);">' +
+        (e.classRank ? '班级第 ' + e.classRank + ' · ' : '') + (e.gradeRank ? '年级第 ' + e.gradeRank + ' · ' : '') +
+        (e.source ? app.escapeHtml(e.source) : '') + '</div>' +
+        '<div class="flex gap-2 mt-2 flex-wrap">' +
+        '<a class="btn btn-sm btn-primary" href="mistakes.html?examId=' + e.id + '&subject=' + e.subject + '" style="text-decoration:none;">📕 录该场错题（' + linked + '）</a>' +
+        '<button class="btn btn-sm btn-outline" onclick="delExam(\'' + e.id + '\')">删除</button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  window.setFilter = function (s) { subjFilter = s; render(); };
+
+  window.openModal = function () {
+    document.getElementById('e-date').value = E.date.today();
+    document.getElementById('e-subject').value = subjFilter === 'all' ? 'math' : subjFilter;
+    document.getElementById('exam-modal').classList.add('active');
+  };
+  window.saveExam = function () {
+    const score = Number(document.getElementById('e-score').value);
+    const full = Number(document.getElementById('e-full').value) || 100;
+    if (!(score >= 0)) { app.toast('填一下得分'); return; }
+    J1Store.addExam({
+      date: document.getElementById('e-date').value || E.date.today(),
+      subject: document.getElementById('e-subject').value,
+      type: document.getElementById('e-type').value,
+      score: score, fullScore: full,
+      classRank: Number(document.getElementById('e-classrank').value) || null,
+      gradeRank: Number(document.getElementById('e-graderank').value) || null,
+      source: document.getElementById('e-source').value.trim()
+    });
+    document.getElementById('exam-modal').classList.remove('active');
+    document.getElementById('e-score').value = '';
+    render();
+    app.toast('已记录；考完记得录错题');
+  };
+  window.delExam = function (id) {
+    if (!app.confirm('删除这场考试记录？关联错题保留但解除关联。')) return;
+    J1Store.deleteExam(id);
+    render();
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    app.injectNav();
+    try { render(); } catch (e) { console.error(e); }
+  });
+})();
+</script>
+</body>
+</html>

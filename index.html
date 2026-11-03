@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2f80ed">
+<title>看板 · 初一学习工作台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-container">
+
+  <div class="flex items-center justify-between mb-3">
+    <div>
+      <div class="text-lg font-bold" id="today-cn" style="color:var(--text-strong);"></div>
+      <div class="text-xs" style="color:var(--muted);">把基础一小步一小步补牢</div>
+    </div>
+    <a href="settings.html" class="text-2xl no-underline" style="text-decoration:none;">⚙️</a>
+  </div>
+
+  <!-- 孩子概况 + 今日进度环 -->
+  <div class="child-card" id="child-card"></div>
+
+  <!-- 三仪表 -->
+  <div class="card">
+    <div class="card-title">完成率仪表</div>
+    <div class="meter-grid" id="meter-grid"></div>
+    <div class="text-xs mt-2 text-center" id="baseline-tip" style="color:var(--muted);"></div>
+  </div>
+
+  <!-- 月目标进度 -->
+  <div class="card">
+    <div class="card-title"><span>🎯 本月目标</span><a href="goals.html" class="text-xs" style="color:var(--brand);text-decoration:none;">拆解与管理 ›</a></div>
+    <div id="goal-list"></div>
+  </div>
+
+  <!-- 图表 -->
+  <div class="card">
+    <div class="card-title">📊 近 7 日完成率</div>
+    <div style="height:160px;"><canvas id="chart-week"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📕 错题科目分布</div>
+    <div style="height:180px;"><canvas id="chart-mistake"></canvas></div>
+  </div>
+
+  <!-- 需关注 -->
+  <div class="card">
+    <div class="card-title">⚠️ 需要关注</div>
+    <div id="attention-list"></div>
+  </div>
+
+  <!-- 快捷入口 -->
+  <div class="card">
+    <div class="card-title">⚡ 快捷入口</div>
+    <div class="quick-grid" id="quick-grid"></div>
+  </div>
+
+  <div class="text-center mt-4 mb-2">
+    <button class="btn btn-outline btn-sm" onclick="app.repairAndReload()">🛠️ 界面异常？一键修复（不删数据）</button>
+  </div>
+</div>
+<div id="bottom-nav"></div>
+
+<script src="js/data/kpoints.js"></script>
+<script src="js/store.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  function render() {
+    const store = J1Store, E = J1Engine;
+    const today = E.date.today();
+    document.getElementById('today-cn').textContent = app.formatDate(today);
+
+    const prog = E.computeProgress(store, today);
+
+    // 孩子卡
+    const child = store.settings.child;
+    document.getElementById('child-card').innerHTML =
+      app.progressRingSVG(prog.today.rate, 64) +
+      '<div style="flex:1;">' +
+      '<div class="font-bold text-base" style="color:var(--text-strong);">' + app.escapeHtml(child.name) + ' · ' + app.escapeHtml(child.grade) + '</div>' +
+      '<div class="text-xs mt-1" style="color:var(--muted);">弱科：' + app.subjectName(child.weakSubject) + '</div>' +
+      '<div class="text-xs mt-1" style="color:var(--muted);">' + app.escapeHtml(child.note || '') + '</div>' +
+      '</div>';
+
+    // 三仪表
+    const meters = [
+      { label: '今日', rate: prog.today.rate },
+      { label: '本周', rate: prog.week.rate },
+      { label: '本月', rate: prog.month.rate }
+    ];
+    document.getElementById('meter-grid').innerHTML = meters.map(m =>
+      '<div class="meter-cell ' + app.rateClass(m.rate) + '">' +
+      '<div class="meter-num">' + app.rateText(m.rate) + '</div>' +
+      '<div class="meter-label">' + m.label + '</div></div>'
+    ).join('');
+    const baseline = store.settings.completionBaseline;
+    document.getElementById('baseline-tip').textContent =
+      '底线 ' + Math.round(baseline * 100) + '%：达到即算稳，不追求满分';
+
+    // 月目标列表
+    const goalBox = document.getElementById('goal-list');
+    if (prog.goals.length === 0) {
+      goalBox.innerHTML = '<div class="empty-state"><div class="empty-icon">🎯</div>' +
+        '<div class="text-sm">还没有月目标</div>' +
+        '<a href="goals.html" class="btn btn-primary btn-sm mt-3 inline-flex">去定第一个月目标</a></div>';
+    } else {
+      goalBox.innerHTML = prog.goals.map(g => {
+        const goal = g.goal;
+        const dev = g.deviation;
+        let devTag = '';
+        if (dev < -0.25) devTag = '<span class="tag" style="background:#fdecec;color:#991b1b;">明显落后</span>';
+        else if (dev < -0.10) devTag = '<span class="tag" style="background:#fff7e6;color:#92400e;">略落后</span>';
+        else devTag = '<span class="tag" style="background:#eafaf0;color:#166534;">正常</span>';
+        let valueText = '';
+        if (goal.metric.type === 'accuracy' || goal.metric.type === 'score') {
+          valueText = goal.lastMeasured === null ? '尚未测' : '最近 ' + goal.lastMeasured + goal.metric.unit + ' / 目标 ' + goal.metric.target + goal.metric.unit;
+        } else {
+          valueText = '进度 ' + Math.round(g.progress * 100) + '%';
+        }
+        return '<a href="goals.html" style="text-decoration:none;display:block;margin-bottom:12px;">' +
+          '<div class="flex items-center justify-between mb-1">' +
+          '<div class="flex items-center gap-2">' + app.subjectTag(goal.subject) +
+          '<span class="text-sm font-semibold" style="color:var(--text-strong);">' + app.escapeHtml(goal.title) + '</span></div>' + devTag + '</div>' +
+          app.progressBar(g.progress) +
+          '<div class="text-xs mt-1" style="color:var(--muted);">' + valueText + '</div></a>';
+      }).join('');
+    }
+
+    // 近 7 日完成率图
+    const labels = [], values = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = E.date.shift(today, -i);
+      labels.push(d.slice(5).replace('-', '/'));
+      const list = (store.todos[d] || []);
+      const r = E.completionRate(list);
+      values.push(r === null ? null : Math.round(r * 100));
+    }
+    if (J1Charts.available()) {
+      J1Charts.completionTrend('week', document.getElementById('chart-week'), labels, values);
+    } else {
+      document.getElementById('chart-week').parentElement.innerHTML =
+        '<div class="empty-state text-xs">图表暂不可用（离线），数据不受影响</div>';
+    }
+
+    // 错题科目分布
+    const subjCount = { math: 0, chinese: 0, english: 0, other: 0 };
+    store.mistakes.forEach(m => { if (!m.archived) subjCount[m.subject] = (subjCount[m.subject] || 0) + 1; });
+    const hasMistake = (subjCount.math + subjCount.chinese + subjCount.english + subjCount.other) > 0;
+    if (J1Charts.available()) {
+      J1Charts.doughnut('mistake', document.getElementById('chart-mistake'),
+        ['数学', '语文', '英语'], [subjCount.math, subjCount.chinese, subjCount.english]);
+      if (!hasMistake) {
+        document.getElementById('chart-mistake').parentElement.insertAdjacentHTML('afterbegin',
+          '<div class="text-xs text-center mb-1" style="color:var(--muted);">还没有错题记录</div>');
+      }
+    }
+
+    // 需关注
+    const items = [];
+    if (prog.carryPile >= 3) {
+      items.push({ cls: 'danger', text: '今天有 ' + prog.carryPile + ' 条顺延任务，先清顺延，新任务别超过 2 项', link: 'tasks.html', linkText: '去处理' });
+    }
+    const stag = E.findStagnant(store);
+    stag.slice(0, 3).forEach(t => {
+      items.push({ cls: 'danger', text: '停滞：' + app.escapeHtml(t.title) + '（顺延 ' + t.carryCount + ' 次未完成）', link: 'tasks.html', linkText: '去处置' });
+    });
+    // 到期重做
+    const due = [];
+    store.mistakes.forEach(m => {
+      if (m.archived) return;
+      (m.reviewSchedule || []).forEach(rv => {
+        if (!rv.done && E.date.diff(rv.date, today) >= 0 && E.date.diff(today, rv.date) <= 3) {
+          due.push(m);
+        }
+      });
+    });
+    const dueUnique = Array.from(new Set(due.map(m => m.id)));
+    if (dueUnique.length > 0) {
+      items.push({ cls: '', text: '有 ' + dueUnique.length + ' 道错题进入重做窗口（艾宾浩斯 D1/D3/D7）', link: 'mistakes.html', linkText: '去重做' });
+    }
+    // 薄弱知识点
+    const tops = E.weakIndex(store.mistakes, store.kpointStates, store.settings, today, store.exams)
+      .slice(0, store.settings.topN || 3);
+    if (tops.length >= 1) {
+      const kmap = {};
+      store.getKpoints(true).forEach(k => { kmap[k.id] = k; });
+      const t0 = tops[0], k0 = kmap[t0.kpointId];
+      items.push({ cls: '', text: '最薄弱：' + (k0 ? k0.name : t0.kpointId) + '（' + t0.mistakeCount + ' 题错题）', link: 'plan.html', linkText: '生成补学计划' });
+    }
+    // 备份提醒
+    const lastExp = store.meta.lastExportAt;
+    if (!lastExp || (Date.now() - new Date(lastExp).getTime()) / 86400000 > 7) {
+      items.push({ cls: '', text: '超过 7 天没备份了，建议导出一次 JSON', link: 'settings.html', linkText: '去备份' });
+    }
+    const attBox = document.getElementById('attention-list');
+    attBox.innerHTML = items.length === 0
+      ? '<div class="text-sm text-center py-3" style="color:var(--muted);">一切正常，按自己的节奏走 👍</div>'
+      : items.map(it =>
+        '<div class="attention-item ' + it.cls + '"><span>' + it.text + '</span>' +
+        '<a href="' + it.link + '" class="btn btn-sm btn-ghost no-underline" style="text-decoration:none;flex-shrink:0;">' + it.linkText + '</a></div>'
+      ).join('');
+
+    // 快捷入口
+    document.getElementById('quick-grid').innerHTML = [
+      { icon: '🎯', label: '月目标拆解', href: 'goals.html' },
+      { icon: '📝', label: '录考试', href: 'exams.html' },
+      { icon: '📕', label: '录错题', href: 'mistakes.html' },
+      { icon: '🩹', label: '诊断补学', href: 'plan.html' },
+      { icon: '📄', label: '今日待办给孩子', href: 'print.html' },
+      { icon: '🌱', label: '激励成长', href: 'growth.html' }
+    ].map(q =>
+      '<a class="quick-item" href="' + q.href + '"><span class="quick-icon">' + q.icon + '</span>' + q.label + '</a>'
+    ).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    app.injectNav();
+    try { render(); } catch (e) {
+      console.error(e);
+    }
+  });
+})();
+</script>
+</body>
+</html>

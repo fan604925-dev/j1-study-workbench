@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2f80ed">
+<title>月目标拆解 · 初一学习工作台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-container">
+  <div class="sticky-header flex items-center justify-between">
+    <button class="btn btn-sm btn-outline" id="month-prev">‹</button>
+    <div class="font-bold text-base" id="month-label" style="color:var(--text-strong);">🎯 月目标</div>
+    <button class="btn btn-sm btn-outline" id="month-next">›</button>
+  </div>
+
+  <div id="goal-list"></div>
+
+  <button class="btn btn-primary w-full" onclick="openGoalModal()">＋ 新建月目标</button>
+  <div class="text-xs mt-3 text-center" style="color:var(--muted);">
+    月目标 → 自动均分到周 → 拆到每日待办；每一步都可手动微调
+  </div>
+</div>
+<div id="bottom-nav"></div>
+
+<!-- 新建/编辑月目标弹窗 -->
+<div class="modal-overlay" id="goal-modal">
+  <div class="modal-content">
+    <div class="font-bold text-base mb-2" id="goal-modal-title">新建月目标</div>
+    <label class="form-label">科目</label>
+    <select class="form-input" id="g-subject">
+      <option value="math">数学</option><option value="chinese">语文</option><option value="english">英语</option>
+    </select>
+    <label class="form-label">目标标题</label>
+    <input class="form-input" id="g-title" type="text" placeholder="如：有理数混合运算 20 题">
+    <label class="form-label">指标类型</label>
+    <select class="form-input" id="g-type">
+      <option value="count">数量（题/篇/个）</option>
+      <option value="accuracy">正确率（%）</option>
+      <option value="score">分数（分）</option>
+      <option value="habit">次数（天/次）</option>
+    </select>
+    <div class="form-row">
+      <div><label class="form-label">目标值</label><input class="form-input" id="g-target" type="number" min="1"></div>
+      <div><label class="form-label">起点（现在水平）</label><input class="form-input" id="g-baseline" type="number" min="0" value="0"></div>
+    </div>
+    <label class="form-label">关联知识点（可多选，用于错题诊断联动）</label>
+    <div id="g-kpoints" class="chip-row scroll-x" style="flex-wrap:wrap;max-height:120px;overflow-y:auto;"></div>
+    <div class="flex gap-2 mt-4">
+      <button class="btn btn-primary flex-1" onclick="saveGoal()">保存</button>
+      <button class="btn btn-outline" onclick="closeGoalModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 均分预览弹窗 -->
+<div class="modal-overlay" id="split-modal">
+  <div class="modal-content">
+    <div class="font-bold text-base mb-1">自动均分到周（预览）</div>
+    <div class="text-xs mb-3" style="color:var(--muted);">数字可直接改，确认后生成周任务</div>
+    <div id="split-rows"></div>
+    <div class="text-xs mt-2" id="split-sum"></div>
+    <div class="flex gap-2 mt-4">
+      <button class="btn btn-primary flex-1" onclick="confirmSplit()">确认生成周任务</button>
+      <button class="btn btn-outline" onclick="closeSplitModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data/kpoints.js"></script>
+<script src="js/store.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  let curMonth = J1Engine.date.today().slice(0, 7);
+  let editingGoalId = null;
+  let splitPreview = null;
+  let kpointSel = [];
+
+  function render() {
+    document.getElementById('month-label').textContent = '🎯 ' + curMonth + ' 月目标';
+    const goals = J1Store.goals.filter(g => g.month === curMonth);
+    const box = document.getElementById('goal-list');
+    if (goals.length === 0) {
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">🎯</div>' +
+        '<div class="text-sm mb-2">这个月还没有目标</div>' +
+        '<div class="text-xs">从一个小目标开始：弱科、量少、够得着</div></div>';
+      return;
+    }
+    const today = J1Engine.date.today();
+    const prog = J1Engine.computeProgress(J1Store, today);
+    box.innerHTML = goals.map(g => {
+      const p = prog.goals.find(x => x.goal.id === g.id);
+      const progress = p ? p.progress : 0;
+      const dev = p ? p.deviation : 0;
+      const wts = J1Store.weekTasks.filter(w => w.goalId === g.id)
+        .sort((a, b) => a.weekStart < b.weekStart ? -1 : 1);
+      let devTag = '';
+      if (g.status === 'done') devTag = '<span class="tag" style="background:#eafaf0;color:#166534;">已完成</span>';
+      else if (dev < -0.25) devTag = '<span class="tag" style="background:#fdecec;color:#991b1b;">明显落后</span>';
+      else if (dev < -0.10) devTag = '<span class="tag" style="background:#fff7e6;color:#92400e;">略落后</span>';
+
+      let html = '<div class="card">' +
+        '<div class="flex items-center justify-between mb-1">' +
+        '<div class="flex items-center gap-2">' + app.subjectTag(g.subject) +
+        '<span class="text-sm font-bold" style="color:var(--text-strong);">' + app.escapeHtml(g.title) + '</span></div>' + devTag + '</div>' +
+        '<div class="text-xs mb-1" style="color:var(--muted);">' + metricText(g, progress) + '</div>' +
+        app.progressBar(progress) +
+        '<div class="flex gap-2 mt-3 flex-wrap">';
+      if ((g.metric.type === 'accuracy' || g.metric.type === 'score') && g.status === 'active') {
+        html += '<button class="btn btn-sm btn-ghost" onclick="recordMeasured(\'' + g.id + '\')">📝 记录实测</button>';
+      }
+      if (g.status === 'active') {
+        html += '<button class="btn btn-sm btn-primary" onclick="openSplit(\'' + g.id + '\')">📅 均分到周</button>';
+      }
+      html += '<button class="btn btn-sm btn-outline" onclick="openGoalModal(\'' + g.id + '\')">编辑</button>' +
+        '<button class="btn btn-sm btn-outline" onclick="completeGoal(\'' + g.id + '\')">完成</button>' +
+        '<button class="del-btn" onclick="deleteGoal(\'' + g.id + '\')">🗑️</button></div>';
+
+      // 周任务层级
+      if (wts.length > 0) {
+        html += '<div class="level-tree mt-3">';
+        wts.forEach(w => {
+          const wp = J1Engine.weekTaskProgress(w, J1Store.todos, today);
+          const thisWeek = J1Engine.date.weekStart(today) === w.weekStart;
+          html += '<div class="level-node' + (thisWeek ? '' : '') + '">' +
+            '<div class="level-head">' +
+            '<span class="text-xs" style="color:var(--muted);">' + w.weekStart.slice(5) + ' 周</span>' +
+            '<span class="text-xs font-semibold">' + app.escapeHtml(w.title) + '</span>' +
+            '<span class="text-xs" style="color:var(--muted);">' + Math.round(wp * (w.target.value || 1)) + '/' + (w.target.value || '?') + ' ' + app.escapeHtml(w.target.unit || '') + '</span>' +
+            (thisWeek ? '<span class="tag tag-review">本周</span>' : '') +
+            '<span class="level-contribution">对月目标贡献 ' + Math.round(wp * (w.target.value || 0) / (g.metric.target || 1) * 100) + '%</span></div>' +
+            '<div class="mt-1">' + app.progressBar(wp) + '</div>' +
+            '<div class="flex gap-2 mt-2 flex-wrap">' +
+            '<button class="btn btn-sm btn-ghost" onclick="adjustWeek(\'' + w.id + '\',-1)">−1</button>' +
+            '<button class="btn btn-sm btn-ghost" onclick="adjustWeek(\'' + w.id + '\',1)">＋1</button>' +
+            '<button class="btn btn-sm btn-outline" onclick="splitToDays(\'' + w.id + '\')">拆到每日</button>' +
+            '<button class="del-btn" onclick="deleteWeek(\'' + w.id + '\')">🗑️</button></div>';
+          // 已生成的每日待办
+          const dayTodos = [];
+          Object.keys(J1Store.todos).forEach(d => {
+            J1Store.todos[d].forEach(t => { if (t.weekTaskId === w.id) dayTodos.push(t); });
+          });
+          dayTodos.sort((a, b) => a.date < b.date ? -1 : 1);
+          const shown = dayTodos.filter(t => J1Engine.date.diff(today, t.date) >= -1).slice(0, 5);
+          shown.forEach(t => {
+            html += '<div class="level-node grandchild"><div class="level-head">' +
+              statusIcon(t.status) +
+              '<span class="text-xs">' + t.date.slice(5) + '</span>' +
+              '<span class="text-xs">' + app.escapeHtml(t.title) + '</span>' +
+              (t.carryOver ? '<span class="tag tag-carry">顺延' + t.carryCount + '</span>' : '') +
+              '</div></div>';
+          });
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+      return html;
+    }).join('');
+  }
+
+  function metricText(g, progress) {
+    const m = g.metric;
+    if (m.type === 'accuracy' || m.type === 'score') {
+      const cur = g.lastMeasured === null ? '未测' : g.lastMeasured + (m.unit || '');
+      return '起点 ' + (m.baseline || 0) + (m.unit || '') + ' → 目标 ' + m.target + (m.unit || '') + '，最近 ' + cur + '（进度 ' + Math.round(progress * 100) + '%）';
+    }
+    return '目标 ' + m.target + ' ' + (m.unit || '') + '（进度 ' + Math.round(progress * 100) + '%）';
+  }
+
+  function statusIcon(s) {
+    return s === 'completed' ? '✅' : s === 'partial' ? '🟡' : s === 'skipped' ? '⛔' : '⬜';
+  }
+
+  /* ---------- 月目标弹窗 ---------- */
+  window.openGoalModal = function (goalId) {
+    editingGoalId = goalId || null;
+    const modal = document.getElementById('goal-modal');
+    document.getElementById('goal-modal-title').textContent = goalId ? '编辑月目标' : '新建月目标';
+    const g = goalId ? J1Store.goals.find(x => x.id === goalId) : null;
+    document.getElementById('g-subject').value = g ? g.subject : (J1Store.settings.child.weakSubject || 'math');
+    document.getElementById('g-title').value = g ? g.title : '';
+    document.getElementById('g-type').value = g ? g.metric.type : 'count';
+    document.getElementById('g-target').value = g ? g.metric.target : 10;
+    document.getElementById('g-baseline').value = g ? (g.metric.baseline || 0) : 0;
+    kpointSel = g ? (g.kpointIds || []).slice() : [];
+    renderKpointChips();
+    modal.classList.add('active');
+  };
+  window.closeGoalModal = function () {
+    document.getElementById('goal-modal').classList.remove('active');
+  };
+
+  function renderKpointChips() {
+    const subj = document.getElementById('g-subject').value;
+    const kps = J1Store.getKpoints().filter(k => k.subject === subj);
+    document.getElementById('g-kpoints').innerHTML = kps.map(k =>
+      '<span class="chip ' + (kpointSel.indexOf(k.id) >= 0 ? 'active' : '') + '" onclick="toggleKp(\'' + k.id + '\')" style="margin:2px;">' + app.escapeHtml(k.name) + '</span>'
+    ).join('') || '<span class="text-xs" style="color:var(--muted);">先选科目</span>';
+  }
+  window.toggleKp = function (id) {
+    const i = kpointSel.indexOf(id);
+    if (i >= 0) kpointSel.splice(i, 1); else kpointSel.push(id);
+    renderKpointChips();
+  };
+  document.getElementById('g-subject').addEventListener('change', renderKpointChips);
+
+  window.saveGoal = function () {
+    const title = document.getElementById('g-title').value.trim();
+    const target = Number(document.getElementById('g-target').value);
+    if (!title || !target) { app.toast('标题和目标值都要填'); return; }
+    const unitMap = { count: '题', accuracy: '%', score: '分', habit: '次' };
+    const patch = {
+      month: curMonth,
+      subject: document.getElementById('g-subject').value,
+      title: title,
+      metric: {
+        type: document.getElementById('g-type').value,
+        target: target, unit: unitMap[document.getElementById('g-type').value] || '',
+        baseline: Number(document.getElementById('g-baseline').value) || 0
+      },
+      kpointIds: kpointSel.slice()
+    };
+    if (editingGoalId) {
+      J1Store.updateGoal(editingGoalId, patch);
+    } else {
+      J1Store.addGoal(Object.assign({ startDate: curMonth + '-01', endDate: null }, patch));
+    }
+    closeGoalModal();
+    render();
+    app.toast('已保存');
+  };
+
+  window.recordMeasured = function (goalId) {
+    const g = J1Store.goals.find(x => x.id === goalId);
+    const v = prompt('最近一次实测值（' + g.metric.unit + '）：\n如最近一次单元测正确率/得分', g.lastMeasured === null ? '' : String(g.lastMeasured));
+    if (v === null) return;
+    const n = Number(v);
+    if (isNaN(n)) { app.toast('请填数字'); return; }
+    J1Store.updateGoal(goalId, { lastMeasured: n, lastMeasuredAt: J1Engine.date.today() });
+    render();
+  };
+
+  window.completeGoal = function (goalId) {
+    if (!app.confirm('标记这个月目标为「已完成」？')) return;
+    J1Store.updateGoal(goalId, { status: 'done' });
+    render();
+  };
+
+  window.deleteGoal = function (goalId) {
+    if (!app.confirm('删除该月目标？其周任务会一并删除，已生成的每日待办保留。')) return;
+    J1Store.deleteGoal(goalId);
+    render();
+  };
+
+  /* ---------- 均分到周 ---------- */
+  window.openSplit = function (goalId) {
+    const goal = J1Store.goals.find(x => x.id === goalId);
+    const weeks = J1Engine.suggestWeekSplit(goal);
+    if (!weeks.length) { app.toast('起止日期不正确'); return; }
+    const existing = J1Store.weekTasks.filter(w => w.goalId === goalId)
+      .map(w => w.weekStart);
+    splitPreview = { goalId: goalId, weeks: weeks.filter(w => existing.indexOf(w.weekStart) < 0) };
+    if (splitPreview.weeks.length === 0) { app.toast('每周都有周任务了'); return; }
+    renderSplit();
+    document.getElementById('split-modal').classList.add('active');
+  };
+  function renderSplit() {
+    const goal = J1Store.goals.find(x => x.id === splitPreview.goalId);
+    const splittable = goal.metric.type === 'count' || goal.metric.type === 'habit';
+    document.getElementById('split-rows').innerHTML = splitPreview.weeks.map((w, i) =>
+      '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border);">' +
+      '<span class="text-sm">' + w.weekStart.slice(5) + ' ~ ' + w.weekEnd.slice(5) +
+      '<span class="text-xs" style="color:var(--muted);">（' + w.days + ' 天）</span></span>' +
+      (splittable
+        ? '<input type="number" min="0" class="form-input" style="width:80px;margin:0;" value="' + w.suggested + '" onchange="updSplit(' + i + ', this.value)">'
+        : '<span class="text-sm font-bold">每周 1 次</span>') +
+      '</div>'
+    ).join('');
+    if (splittable) {
+      const sum = splitPreview.weeks.reduce((a, w) => a + (w.suggested || 0), 0);
+      const el = document.getElementById('split-sum');
+      el.textContent = '周合计 ' + sum + ' ' + (goal.metric.unit || '') + ' / 月目标 ' + goal.metric.target + (goal.metric.unit || '');
+      el.style.color = sum !== goal.metric.target ? 'var(--danger)' : 'var(--success)';
+    } else {
+      document.getElementById('split-sum').textContent = '正确率/分数类目标：每周安排 1 次练习或测试，量的进度按「记录实测」更新';
+    }
+  }
+  window.updSplit = function (i, v) { splitPreview.weeks[i].suggested = Math.max(0, Number(v) || 0); renderSplit(); };
+  window.closeSplitModal = function () { document.getElementById('split-modal').classList.remove('active'); };
+  window.confirmSplit = function () {
+    const goal = J1Store.goals.find(x => x.id === splitPreview.goalId);
+    const E = J1Engine;
+    splitPreview.weeks.forEach(w => {
+      J1Store.addWeekTask({
+        goalId: goal.id, weekStart: w.weekStart, weekEnd: w.weekEnd,
+        subject: goal.subject, title: goal.title,
+        target: { type: 'count', value: w.suggested || 1, unit: goal.metric.unit || '题' },
+        suggestedValue: w.suggested || 1, kpointIds: (goal.kpointIds || []).slice()
+      });
+    });
+    closeSplitModal();
+    render();
+    app.toast('已生成 ' + splitPreview.weeks.length + ' 条周任务');
+  };
+
+  /* ---------- 周任务调整/删除/拆日 ---------- */
+  window.adjustWeek = function (wtId, delta) {
+    const w = J1Store.weekTasks.find(x => x.id === wtId);
+    if (!w) return;
+    w.manualAdjust = { delta: (w.manualAdjust.delta || 0) + delta, reason: w.manualAdjust.reason || '' };
+    w.target.value = Math.max(1, (w.suggestedValue || w.target.value) + w.manualAdjust.delta);
+    J1Store.save();
+    render();
+  };
+  window.deleteWeek = function (wtId) {
+    if (!app.confirm('删除该周任务？已生成的每日待办保留。')) return;
+    J1Store.deleteWeekTask(wtId);
+    render();
+  };
+  window.splitToDays = function (wtId) {
+    const w = J1Store.weekTasks.find(x => x.id === wtId);
+    const days = J1Engine.suggestDaySplit(w, J1Store.settings);
+    if (!days.length) { app.toast('这一周都在休息日，先去设置调整'); return; }
+    const carryPile = (J1Store.todos[J1Engine.date.today()] || [])
+      .filter(t => t.carryOver && t.status === 'pending').length;
+    const proceed = () => {
+      const today = J1Engine.date.today();
+      let count = 0;
+      days.forEach(d => {
+        if (J1Engine.date.diff(today, d.date) < 0) return; // 过去的日期不生成
+        const goal = J1Store.goals.find(g => g.id === w.goalId);
+        J1Store.addTodoIfAbsent({
+          id: 't_' + d.date + '_' + w.id, date: d.date, weekTaskId: w.id, goalId: w.goalId,
+          source: 'week', subject: w.subject,
+          title: w.title + ' ' + d.value + (w.target.unit || ''),
+          targetValue: d.value, estMinutes: J1Store.settings.planMinutes ? 15 : 15,
+          kpointId: (w.kpointIds && w.kpointIds[0]) || null
+        });
+        count++;
+      });
+      render();
+      app.toast('已生成 ' + count + ' 天的每日待办');
+    };
+    if (carryPile >= 3) {
+      if (app.confirm('今天已有 ' + carryPile + ' 条顺延任务堆积，还要继续拆新任务吗？\n建议先去「待办」清顺延。')) proceed();
+    } else proceed();
+  };
+
+  document.getElementById('month-prev').onclick = function () { curMonth = shiftMonth(curMonth, -1); render(); };
+  document.getElementById('month-next').onclick = function () { curMonth = shiftMonth(curMonth, 1); render(); };
+
+  function shiftMonth(m, n) {
+    const y = Number(m.slice(0, 4)), mo = Number(m.slice(5));
+    const d = new Date(y, mo - 1 + n, 1);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    app.injectNav();
+    try { render(); } catch (e) { console.error(e); }
+  });
+})();
+</script>
+</body>
+</html>

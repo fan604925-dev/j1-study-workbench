@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2f80ed">
+<title>诊断与补学 · 初一学习工作台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-container">
+  <div class="sticky-header flex items-center justify-between">
+    <a href="index.html" class="text-sm" style="color:var(--brand);text-decoration:none;">‹ 返回看板</a>
+    <div class="font-bold" style="color:var(--text-strong);">🩹 诊断与补学</div>
+    <span class="text-xs" style="color:var(--muted);">本地分析</span>
+  </div>
+
+  <!-- 诊断 -->
+  <div class="card">
+    <div class="card-title">🔍 薄弱知识点诊断（规则引擎，本地计算）</div>
+    <div id="diag-box"></div>
+    <div class="text-xs mt-2" id="diag-text" style="color:var(--muted);line-height:1.7;"></div>
+  </div>
+
+  <!-- 7 天计划 -->
+  <div class="card">
+    <div class="card-title">📅 7 天补学计划</div>
+    <div class="text-xs mb-2" style="color:var(--muted);">每天 15-20 分钟；弱科优先；错题按 1/3/7 天节奏重做</div>
+    <button class="btn btn-primary w-full" onclick="genPlan()" id="gen-btn">生成 / 更新 7 天计划</button>
+    <div id="plan-box"></div>
+    <div id="plan-actions" style="display:none;" class="mt-3">
+      <button class="btn btn-primary w-full" onclick="applyPlan()">📌 一键转成每日待办</button>
+      <div class="text-xs mt-1 text-center" style="color:var(--muted);">会写入对应日期的每日待办（重复点不会重复加）</div>
+    </div>
+  </div>
+
+  <!-- AI 回路 -->
+  <div class="card">
+    <div class="card-title">🤖 AI 帮我分析（复制 → 粘贴回来）</div>
+    <div class="text-xs mb-2" style="color:var(--muted);line-height:1.7;">
+      第 1 步：复制下面的摘要，发给 AI 助手；第 2 步：把 AI 的建议粘贴回来，确认后回填。<br>无需任何 API Key，全部本地完成。
+    </div>
+    <button class="btn btn-primary w-full" onclick="copySummary()">📋 一键复制错题摘要（给 AI）</button>
+    <pre id="summary-pre" class="mt-2 p-3 rounded-xl text-xs" style="background:var(--surface-2);white-space:pre-wrap;max-height:180px;overflow-y:auto;color:var(--muted);"></pre>
+
+    <label class="form-label">粘贴 AI 的建议（JSON 或【段名】行文均可）</label>
+    <textarea class="form-input" id="ai-input" rows="5" placeholder='把 AI 回复的内容整段粘到这里…'></textarea>
+    <div class="flex gap-2 mt-2">
+      <button class="btn btn-primary flex-1" onclick="parseAi()">解析并预览</button>
+      <button class="btn btn-outline" onclick="document.getElementById('ai-input').value=''">清空</button>
+    </div>
+    <div id="ai-preview"></div>
+    <div id="ai-history" class="mt-3"></div>
+  </div>
+</div>
+<div id="bottom-nav"></div>
+
+<script src="js/data/kpoints.js"></script>
+<script src="js/store.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ai-bridge.js"></script>
+<script src="js/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  const E = J1Engine;
+  let lastPreview = null;
+  let lastRaw = '';
+
+  function kmap() {
+    const m = {};
+    J1Store.getKpoints(true).forEach(k => { m[k.id] = k; });
+    return m;
+  }
+
+  function render() {
+    const today = E.date.today();
+    const km = kmap();
+    const tops = E.weakIndex(J1Store.mistakes, J1Store.kpointStates, J1Store.settings, today, J1Store.exams)
+      .slice(0, J1Store.settings.topN || 3);
+
+    const diagBox = document.getElementById('diag-box');
+    if (tops.length === 0) {
+      diagBox.innerHTML = '<div class="text-sm text-center py-3" style="color:var(--muted);">暂无足够错题，先去错题库录 3-5 题再诊断</div>';
+      document.getElementById('diag-text').textContent = '';
+    } else {
+      diagBox.innerHTML = tops.map(t => {
+        const k = km[t.kpointId];
+        const name = k ? k.name : t.kpointId;
+        const subj = k ? app.subjectName(k.subject) : app.subjectName(t.subject);
+        return '<div class="mb-3">' +
+          '<div class="flex items-center justify-between mb-1">' +
+          '<div class="flex items-center gap-2"><span class="tag tag-cause">' + subj + '</span>' +
+          '<span class="text-sm font-bold" style="color:var(--text-strong);">' + app.escapeHtml(name) + '</span></div>' +
+          '<span class="text-xs" style="color:var(--muted);">' + t.mistakeCount + ' 题 · ' + (t.topCause ? E.causeName(t.topCause) : '') + '</span></div>' +
+          app.progressBar(t.relative / 100, t.relative >= 66 ? 'red' : t.relative >= 33 ? 'yellow' : 'green') +
+          (k ? '<div class="text-xs mt-1" style="color:var(--muted);">处方：' + app.escapeHtml(k.prescription.microLesson) +
+            '；练 ' + app.escapeHtml(k.prescription.practiceTypes.join('/')) + '</div>' : '') +
+          '</div>';
+      }).join('');
+      document.getElementById('diag-text').textContent = '结论：' + E.diagnosisText(tops, km) + '。';
+    }
+
+    renderPlan();
+    renderSummary();
+    renderHistory();
+  }
+
+  function renderPlan() {
+    const box = document.getElementById('plan-box');
+    const act = document.getElementById('plan-actions');
+    const plan = J1Store.plans.filter(p => p.status === 'active').pop();
+    if (!plan) {
+      box.innerHTML = '<div class="text-sm text-center py-3" style="color:var(--muted);">还没有计划，点上方按钮生成</div>';
+      act.style.display = 'none';
+      return;
+    }
+    act.style.display = '';
+    box.innerHTML = plan.days.map(d => {
+      const total = d.items.reduce((a, i) => a + i.minutes, 0);
+      return '<div class="p-3 rounded-xl mb-2" style="background:var(--surface-2);border:1px solid var(--border);">' +
+        '<div class="flex items-center justify-between mb-1">' +
+        '<span class="text-sm font-bold" style="color:var(--text-strong);">' + app.formatDate(d.date) + '</span>' +
+        '<span class="text-xs" style="color:var(--muted);">' + total + ' 分钟</span></div>' +
+        d.items.map(i =>
+          '<div class="text-xs mt-1" style="color:var(--text);">• ' + app.escapeHtml(i.title) +
+          '（' + i.minutes + ' 分钟' + (i.ebbinghausTag ? ' · ' + i.ebbinghausTag : '') + '）</div>'
+        ).join('') + '</div>';
+    }).join('');
+  }
+
+  function renderSummary() {
+    const today = E.date.today();
+    document.getElementById('summary-pre').textContent = J1AiBridge.buildSummary(J1Store, today);
+  }
+
+  /* ---------- 生成计划 ---------- */
+  window.genPlan = function () {
+    const today = E.date.today();
+    const km = kmap();
+    const tops = E.weakIndex(J1Store.mistakes, J1Store.kpointStates, J1Store.settings, today, J1Store.exams)
+      .slice(0, J1Store.settings.topN || 3)
+      .map(t => Object.assign({}, t, { kpoint: km[t.kpointId] || null }));
+    if (tops.length === 0) { app.toast('先去错题库录几道错题，才能对症下药'); return; }
+
+    // 已有占用
+    const existing = {};
+    Object.keys(J1Store.todos).forEach(d => {
+      existing[d] = (J1Store.todos[d] || []).reduce((a, t) => a + (t.estMinutes || 0), 0);
+    });
+
+    const plan = E.generatePlan({
+      tops: tops, settings: J1Store.settings, today: today,
+      existingMinutes: existing, mistakes: J1Store.mistakes.filter(m => !m.archived)
+    });
+    if (!plan) { app.toast('未来 7 天都在休息日？去设置里调整'); return; }
+    J1Store.addPlan(plan);
+    render();
+    app.toast('已生成 7 天补学计划');
+  };
+
+  window.applyPlan = function () {
+    const plan = J1Store.plans.filter(p => p.status === 'active').pop();
+    if (!plan) return;
+    let count = 0;
+    plan.days.forEach(day => {
+      day.items.forEach((item, idx) => {
+        const created = J1Store.addTodoIfAbsent({
+          id: 't_' + plan.id + '_' + day.date + '_' + idx,
+          date: day.date, source: 'remedial', planId: plan.id,
+          weekTaskId: null, goalId: null,
+          subject: item.subject, title: item.title,
+          targetValue: 1, estMinutes: item.minutes,
+          kpointId: item.kpointId, mistakeId: (item.mistakeIds && item.mistakeIds[0]) || null,
+          ebbinghausTag: item.ebbinghausTag
+        });
+        if (created) count++;
+      });
+    });
+    const fresh = J1Store.evaluateBadges();
+    if (fresh.length) app.toast('🏅 新徽章：' + fresh.map(b => b.name).join('、'));
+    app.toast('已转入 ' + count + ' 条每日待办（已存在的不会重复加）');
+  };
+
+  /* ---------- AI 回路 ---------- */
+  window.copySummary = function () {
+    app.copyText(document.getElementById('summary-pre').textContent)
+      .then(ok => app.toast(ok ? '已复制，去对话里粘贴给 AI 吧' : '复制失败，可长按预览区手动复制'));
+  };
+
+  window.parseAi = function () {
+    const raw = document.getElementById('ai-input').value;
+    lastRaw = raw;
+    const parsed = J1AiBridge.parseInput(raw);
+    const box = document.getElementById('ai-preview');
+
+    if (!parsed.ok) {
+      box.innerHTML = '<div class="mt-3 p-3 rounded-xl" style="background:var(--danger-soft);color:#991b1b;">' +
+        '⚠️ ' + app.escapeHtml(parsed.reason) + '<br>内容不会丢：可点「仅保存为备注」，或对照格式修改后重试。</div>' +
+        '<button class="btn btn-outline btn-sm mt-2" onclick="saveAsNote()">仅保存为备注</button>';
+      lastPreview = null;
+      return;
+    }
+
+    const today = E.date.today();
+    lastPreview = J1AiBridge.preview(J1Store, parsed, today);
+    const p = lastPreview;
+    let html = '<div class="mt-3">';
+
+    if (p.diagnosisNotes.length) {
+      html += '<div class="font-bold text-sm mb-1">📝 诊断建议（保存为备注）</div>';
+      p.diagnosisNotes.forEach(d => {
+        html += '<div class="text-xs mb-1">• ' + app.escapeHtml(d.name) + '（' + app.escapeHtml(d.priority) + '）：' + app.escapeHtml(d.advice) + '</div>';
+      });
+    }
+    const renderList = (title, arr, fmt) => {
+      if (!arr.length) return '';
+      let h = '<div class="font-bold text-sm mt-2 mb-1">' + title + '（' + arr.length + ' 条，将新增）</div>';
+      arr.forEach((x, i) => {
+        h += '<label class="flex items-start gap-2 text-xs mb-1"><input type="checkbox" checked data-cls="' +
+          fmt.cls + '" data-idx="' + i + '" onchange="this.dataset.keep=this.checked?\'1\':\'\'">' + fmt.item(x) + '</label>';
+      });
+      return h;
+    };
+    html += renderList('📅 周任务', p.weekTasks, { cls: 'weekTasks', item: w => app.subjectName(w.subject) + ' ' + w.weekStart + '：' + app.escapeHtml(w.title) + '（' + w.target.value + w.target.unit + '）' });
+    html += renderList('📋 每日待办', p.todos, { cls: 'todos', item: t => t.date + ' ' + app.subjectName(t.subject) + '：' + app.escapeHtml(t.title) + '（' + t.estMinutes + ' 分钟）' });
+    html += renderList('💬 表扬话术', p.praise, { cls: 'praise', item: x => app.escapeHtml(x.text) });
+
+    if (p.warnings.length) {
+      html += '<div class="mt-2 p-2 rounded-lg" style="background:var(--warning-soft);color:#92400e;">';
+      p.warnings.forEach(w => { html += '⚠️ ' + app.escapeHtml(w) + '<br>'; });
+      html += '</div>';
+    }
+    html += '<div class="flex gap-2 mt-3">' +
+      '<button class="btn btn-primary flex-1" onclick="confirmApply()">确认回填（只新增，不改已有数据）</button>' +
+      '<button class="btn btn-outline" onclick="saveAsNote()">仅保存为备注</button></div></div>';
+    box.innerHTML = html;
+  };
+
+  window.confirmApply = function () {
+    if (!lastPreview) return;
+    // 按勾选过滤：未勾选的条目剔除（按 cls+idx 记录）
+    const drop = { weekTasks: new Set(), todos: new Set(), praise: new Set() };
+    document.querySelectorAll('#ai-preview input[type=checkbox][data-cls]').forEach(cb => {
+      if (!cb.checked) drop[cb.dataset.cls].add(Number(cb.dataset.idx));
+    });
+    const filtered = {
+      weekTasks: lastPreview.weekTasks.filter((_, i) => !drop.weekTasks.has(i)),
+      todos: lastPreview.todos.filter((_, i) => !drop.todos.has(i)),
+      praise: lastPreview.praise.filter((_, i) => !drop.praise.has(i)),
+      diagnosisNotes: lastPreview.diagnosisNotes,
+      warnings: lastPreview.warnings
+    };
+    const today = E.date.today();
+    const note = J1AiBridge.commit(J1Store, filtered, lastRaw, today);
+    document.getElementById('ai-preview').innerHTML =
+      '<div class="mt-3 p-3 rounded-xl" style="background:var(--success-soft);color:#166534;">✅ 已回填：周任务 ' +
+      note.applied.weekTasks.length + ' 条、待办 ' + note.applied.todos.length + ' 条、话术 ' + note.applied.praise.length + ' 条。可到对应页面查看。</div>';
+    document.getElementById('ai-input').value = '';
+    lastPreview = null;
+    render();
+  };
+
+  window.saveAsNote = function () {
+    const today = E.date.today();
+    J1Store.aiNotes.push({
+      id: 'ai_' + Date.now().toString(36), createdAt: today, raw: lastRaw || document.getElementById('ai-input').value,
+      parsed: null, warnings: [], applied: null, undone: false
+    });
+    J1Store.save();
+    document.getElementById('ai-input').value = '';
+    document.getElementById('ai-preview').innerHTML = '';
+    lastPreview = null;
+    renderHistory();
+    app.toast('已保存为备注（原文不丢）');
+  };
+
+  function renderHistory() {
+    const notes = J1Store.aiNotes.slice().reverse().slice(0, 10);
+    const box = document.getElementById('ai-history');
+    if (!notes.length) { box.innerHTML = ''; return; }
+    box.innerHTML = '<div class="font-bold text-sm mb-1">📜 AI 记录</div>' + notes.map(n =>
+      '<div class="text-xs mb-1" style="color:var(--muted);">' + n.createdAt + ' · ' +
+      (n.applied ? '回填过（周任务 ' + (n.applied.weekTasks || []).length + '、待办 ' + (n.applied.todos || []).length + '）'
+        : '仅备注') +
+      (n.applied && !n.undone ? ' <button class="btn btn-sm btn-outline" onclick="undoAi(\'' + n.id + '\')">撤销回填</button>' : '') +
+      (n.undone ? '（已撤销）' : '') + '</div>'
+    ).join('');
+  }
+
+  window.undoAi = function (id) {
+    if (!app.confirm('撤销这次回填？只删除当时新增的条目，你手动加的不受影响。')) return;
+    if (J1AiBridge.undo(J1Store, id)) { app.toast('已撤销'); render(); }
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    app.injectNav();
+    try { render(); } catch (e) { console.error(e); }
+  });
+})();
+</script>
+</body>
+</html>

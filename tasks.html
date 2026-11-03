@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2f80ed">
+<title>每日待办 · 初一学习工作台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-container">
+  <div class="sticky-header">
+    <div class="flex items-center justify-between">
+      <button class="btn btn-sm btn-outline" onclick="shiftDay(-1)">‹</button>
+      <div class="font-bold text-base" id="date-label" style="color:var(--text-strong);"></div>
+      <button class="btn btn-sm btn-outline" onclick="shiftDay(1)">›</button>
+    </div>
+    <div class="mt-2 flex items-center gap-2 flex-wrap">
+      <a class="btn btn-sm btn-ghost" href="print.html" style="text-decoration:none;">📄 给孩子看 / 打印</a>
+      <button class="btn btn-sm btn-outline" onclick="copyToday()">📋 复制待办</button>
+      <button class="btn btn-sm btn-primary" onclick="openAddModal()">＋ 临时任务</button>
+    </div>
+  </div>
+
+  <div class="card" id="load-card"></div>
+  <div id="stagnant-box"></div>
+  <div id="todo-list"></div>
+  <div class="card" id="choice-card"></div>
+
+  <!-- 番茄钟 -->
+  <div class="card">
+    <div class="card-title">🍅 番茄钟</div>
+    <div class="pomodoro">
+      <div class="pomo-time" id="pomo-time">15:00</div>
+      <div class="flex gap-2 justify-center mt-2">
+        <button class="btn btn-primary btn-sm" onclick="pomoToggle()" id="pomo-btn">开始</button>
+        <button class="btn btn-outline btn-sm" onclick="pomoReset()">重置</button>
+      </div>
+      <div class="text-xs mt-2" style="color:var(--muted);">开始前问他：「今天先做哪个？」让他自己选</div>
+    </div>
+  </div>
+
+  <!-- 习惯打卡 -->
+  <div class="card">
+    <div class="card-title">✅ 习惯打卡（今天）</div>
+    <div class="grid grid-cols-3 gap-2">
+      <button class="btn btn-outline btn-sm" onclick="habit('checkin')" id="hb-checkin">坐下开始</button>
+      <button class="btn btn-outline btn-sm" onclick="habit('ask')" id="hb-ask">主动提问</button>
+      <button class="btn btn-outline btn-sm" onclick="habit('explain')" id="hb-explain">讲题给妈妈听</button>
+    </div>
+    <div class="text-xs mt-2" style="color:var(--muted);">点一下就记一笔，连续打卡会点亮徽章（孩子侧看不到数字）</div>
+  </div>
+</div>
+<div id="bottom-nav"></div>
+
+<!-- 添加任务弹窗 -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal-content">
+    <div class="font-bold text-base mb-2">添加今日临时任务</div>
+    <label class="form-label">科目</label>
+    <select class="form-input" id="a-subject">
+      <option value="math">数学</option><option value="chinese">语文</option>
+      <option value="english">英语</option><option value="other">其他</option>
+    </select>
+    <label class="form-label">任务</label>
+    <input class="form-input" id="a-title" type="text" placeholder="如：数学计算 10 题">
+    <div class="form-row">
+      <div><label class="form-label">数量</label><input class="form-input" id="a-value" type="number" min="1" value="1"></div>
+      <div><label class="form-label">预计分钟</label><input class="form-input" id="a-minutes" type="number" min="5" max="60" step="5" value="15"></div>
+    </div>
+    <label class="form-label" style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="a-hard"> 启动难（需要帮他开个头）
+    </label>
+    <div class="flex gap-2 mt-4">
+      <button class="btn btn-primary flex-1" onclick="addTodo()">保存</button>
+      <button class="btn btn-outline" onclick="document.getElementById('add-modal').classList.remove('active')">取消</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data/kpoints.js"></script>
+<script src="js/store.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+<script>
+(function () {
+  'use strict';
+  const E = J1Engine;
+  let curDate = E.date.today();
+
+  function render() {
+    document.getElementById('date-label').textContent =
+      app.formatDate(curDate) + (curDate === E.date.today() ? ' · 今天' : '');
+
+    const list = (J1Store.todos[curDate] || []);
+    const s = J1Store.settings;
+
+    // 负载卡
+    const active = list.filter(t => t.status !== 'skipped');
+    const totalMin = active.reduce((a, t) => a + (t.estMinutes || 0), 0);
+    const overload = active.length > s.dailyMaxTodos || totalMin > s.dailyMaxMinutes;
+    document.getElementById('load-card').innerHTML =
+      '<div class="card-title">📊 今日负载</div>' +
+      '<div class="flex items-center justify-between text-sm mb-2">' +
+      '<span>' + active.length + ' / ' + s.dailyMaxTodos + ' 项</span>' +
+      '<span>' + totalMin + ' / ' + s.dailyMaxMinutes + ' 分钟</span>' +
+      '<span style="color:' + (overload ? 'var(--danger)' : 'var(--success)') + ';">' +
+      (overload ? '排得太满 ⚠️' : '节奏合适 ✓') + '</span></div>' +
+      app.progressBar(E.completionRate(list));
+
+    // 停滞卡
+    const stag = list.filter(t => t.stagnant && t.status === 'pending');
+    document.getElementById('stagnant-box').innerHTML = stag.map(t =>
+      '<div class="stagnant-card"><div class="stagnant-title">⛔ 停滞：' + app.escapeHtml(t.title) +
+      '（顺延 ' + t.carryCount + ' 次未完成）</div>' +
+      '<div class="text-xs mb-2" style="color:#92400e;">别硬推，选一个办法：</div>' +
+      '<div class="stagnant-actions">' +
+      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'split\')">✂️ 拆小（减半）</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'weekend\')">📅 改到周末</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'reduce\')">📉 降量</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'drop\')">🗑️ 放弃这题</button>' +
+      '</div></div>'
+    ).join('');
+
+    // 待办列表
+    const box = document.getElementById('todo-list');
+    if (list.length === 0) {
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>' +
+        '<div class="text-sm">今天还没有待办</div>' +
+        '<div class="text-xs mt-1">去「目标」页把周任务拆到每日，或点上方＋添加</div></div>';
+    } else {
+      const order = { stagnant: 0, pending: 1, partial: 2, completed: 3, skipped: 4 };
+      const sorted = list.slice().sort((a, b) => (order[a.status] - order[b.status]) ||
+        ((a.carryOver ? 1 : 0) - (b.carryOver ? 1 : 0)));
+      box.innerHTML = sorted.map(t => {
+        const checked = t.status === 'completed';
+        const partial = t.status === 'partial';
+        return '<div class="task-item ' + t.status + (t.carryOver ? ' carry-over' : '') + '">' +
+          '<div class="task-checkbox ' + (checked ? 'checked' : partial ? 'partial' : '') + '" onclick="toggleTodo(\'' + t.id + '\')">' +
+          (checked ? '✓' : partial ? '半' : '') + '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+          '<div class="flex items-center gap-1 flex-wrap">' + app.subjectTag(t.subject) +
+          '<span class="text-sm font-medium" style="' + (checked ? 'text-decoration:line-through;' : '') + '">' + app.escapeHtml(t.title) + '</span></div>' +
+          '<div class="text-xs mt-1 flex items-center gap-2 flex-wrap" style="color:var(--muted);">' +
+          '<span>约 ' + (t.estMinutes || 15) + ' 分钟</span>' +
+          (t.hardToStart ? '<span class="tag tag-hard">启动难</span>' : '') +
+          (t.carryOver ? '<span class="tag tag-carry">顺延 ' + t.carryCount + '/' + J1Store.settings.carryOverMax + '</span>' : '') +
+          (t.ebbinghausTag ? '<span class="tag tag-review">重做 ' + t.ebbinghausTag + '</span>' : '') +
+          '</div></div>' +
+          '<div class="flex flex-col gap-1">' +
+          (t.status !== 'completed' ? '<button class="btn btn-sm btn-outline" onclick="partialTodo(\'' + t.id + '\')">半</button>' : '') +
+          (t.status === 'pending' ? '<button class="btn btn-sm btn-outline" onclick="skipTodo(\'' + t.id + '\')">跳</button>' : '') +
+          '<button class="del-btn" onclick="delTodo(\'' + t.id + '\')">🗑️</button></div>' +
+          '</div>';
+      }).join('');
+    }
+
+    // A/B/C 自选
+    const pending = list.filter(t => t.status === 'pending' || t.status === 'partial');
+    const choiceBox = document.getElementById('choice-card');
+    if (pending.length >= 2) {
+      const groups = { A: [], B: [], C: [] };
+      pending.forEach((t, i) => {
+        const hard = t.hardToStart || (t.estMinutes || 15) >= 20;
+        const light = !hard && (t.estMinutes || 15) <= 10;
+        if (hard) groups.A.push(t);
+        else if (light) groups.C.push(t);
+        else groups.B.push(t);
+      });
+      let html = '<div class="card-title">🎲 今天的顺序你选（A/B/C）</div>' +
+        '<div class="text-xs mb-2" style="color:var(--muted);">问他：「你想先做 A 还是 B？」选完记下来</div>';
+      ['A', 'B', 'C'].forEach(k => {
+        if (groups[k].length === 0) return;
+        html += '<div class="suggestion-option" onclick="pickChoice(\'' + k + '\')">' +
+          '<div class="font-bold text-sm mb-1">' + k + ' · ' + ({ A: '啃硬骨头', B: '常规任务', C: '轻任务' }[k]) + '</div>' +
+          groups[k].map(t => '<div class="text-xs">• ' + app.escapeHtml(t.title) + '</div>').join('') + '</div>';
+      });
+      choiceBox.innerHTML = html;
+      choiceBox.style.display = '';
+    } else {
+      choiceBox.style.display = 'none';
+    }
+
+    renderHabitBtns();
+  }
+
+  function renderHabitBtns() {
+    const today = E.date.today();
+    const has = type => J1Store.habitEvents.some(h => h.type === type && h.date === today);
+    ['checkin', 'ask', 'explain'].forEach(t => {
+      const el = document.getElementById('hb-' + t);
+      if (el) el.textContent = has(t) ? '✓ ' + el.textContent.replace(/^✓ /, '') : el.textContent.replace(/^✓ /, '');
+    });
+  }
+
+  /* ---------- 待办操作 ---------- */
+  window.toggleTodo = function (id) {
+    const t = J1Store.getTodo(id);
+    if (!t) return;
+    if (t.status === 'completed') {
+      J1Store.updateTodo(id, { status: 'pending', completedAt: null, doneValue: 0 });
+    } else {
+      J1Store.updateTodo(id, { status: 'completed', completedAt: E.date.today(), doneValue: t.targetValue });
+      if (t.hardToStart) J1Store.addHabitEvent('hard', id, '');
+      const fresh = J1Store.evaluateBadges();
+      if (fresh.length) app.toast('🏅 新徽章：' + fresh.map(b => b.name).join('、'));
+    }
+    render();
+  };
+  window.partialTodo = function (id) {
+    const t = J1Store.getTodo(id);
+    if (!t) return;
+    const v = prompt('完成了多少？（总量 ' + t.targetValue + ' ' + (t.title.match(/(\d+)\s*(题|篇|个|次|分钟)/) ? '' : '') + '）', String(Math.ceil((t.targetValue || 1) / 2)));
+    if (v === null) return;
+    const n = Math.max(0, Math.min(t.targetValue || 1, Number(v) || 0));
+    J1Store.updateTodo(id, { status: 'partial', doneValue: n });
+    render();
+  };
+  window.skipTodo = function (id) {
+    if (!app.confirm('跳过这条今天就不算完成了，确定？')) return;
+    J1Store.updateTodo(id, { status: 'skipped' });
+    render();
+  };
+  window.delTodo = function (id) {
+    J1Store.deleteTodo(id);
+    render();
+  };
+
+  /* ---------- 停滞处置 ---------- */
+  window.disposeStagnant = function (id, action) {
+    const t = J1Store.getTodo(id);
+    if (!t) return;
+    const today = E.date.today();
+    if (action === 'split') {
+      // 拆小：量减半，剩下另开一条
+      const half = Math.max(1, Math.ceil((t.targetValue || 1) / 2));
+      J1Store.updateTodo(id, { stagnant: false, targetValue: half, title: t.title + '（上半）', note: '停滞拆小' });
+      J1Store.addTodo({ date: today, subject: t.subject, title: t.title + '（下半）', targetValue: half, estMinutes: Math.max(10, Math.ceil((t.estMinutes || 15) / 2)), weekTaskId: t.weekTaskId, goalId: t.goalId, source: t.source });
+      app.toast('已拆成两小条，先做上半');
+    } else if (action === 'weekend') {
+      // 找最近的周六
+      let d = today;
+      while (E.date.dow(d) !== 6) d = E.date.shift(d, 1);
+      J1Store.updateTodo(id, { stagnant: false, status: 'pending', date: d, carryOver: false, note: '改到周末' });
+      app.toast('已改到 ' + app.formatDate(d));
+    } else if (action === 'reduce') {
+      J1Store.updateTodo(id, { stagnant: false, targetValue: Math.max(1, Math.ceil((t.targetValue || 1) / 2)), estMinutes: Math.max(10, Math.ceil((t.estMinutes || 15) / 2)), note: '停滞降量' });
+      app.toast('已降量，做到就行');
+    } else if (action === 'drop') {
+      if (!app.confirm('放弃这条？（不算失败，有时该放就放）')) return;
+      J1Store.updateTodo(id, { stagnant: false, status: 'skipped' });
+    }
+    J1Store.addHabitEvent('stagnantClear', id, '');
+    J1Store.evaluateBadges();
+    render();
+  };
+
+  /* ---------- A/B/C ---------- */
+  window.pickChoice = function (k) {
+    const list = (J1Store.todos[curDate] || []).filter(t => t.status === 'pending' || t.status === 'partial');
+    list.forEach(t => J1Store.updateTodo(t.id, { choiceGroup: k }));
+    J1Store.addHabitEvent('checkin', null, '自选顺序 ' + k);
+    app.toast('已记录他选了 ' + k + '，把决定权交给他');
+    render();
+  };
+
+  /* ---------- 习惯打卡 ---------- */
+  window.habit = function (type) {
+    J1Store.addHabitEvent(type, null, '');
+    const fresh = J1Store.evaluateBadges();
+    if (fresh.length) app.toast('🏅 新徽章：' + fresh.map(b => b.name).join('、'));
+    else app.toast('已记录');
+    render();
+  };
+
+  /* ---------- 临时任务 ---------- */
+  window.openAddModal = function () {
+    document.getElementById('add-modal').classList.add('active');
+  };
+  window.addTodo = function () {
+    const title = document.getElementById('a-title').value.trim();
+    if (!title) { app.toast('填一下任务名'); return; }
+    J1Store.addTodo({
+      date: curDate,
+      subject: document.getElementById('a-subject').value,
+      title: title + ' ' + (document.getElementById('a-value').value || 1) + ' 个',
+      targetValue: Number(document.getElementById('a-value').value) || 1,
+      estMinutes: Number(document.getElementById('a-minutes').value) || 15,
+      hardToStart: document.getElementById('a-hard').checked,
+      source: 'manual'
+    });
+    document.getElementById('add-modal').classList.remove('active');
+    document.getElementById('a-title').value = '';
+    render();
+    app.toast('已添加');
+  };
+
+  /* ---------- 复制待办 ---------- */
+  window.copyToday = function () {
+    const list = (J1Store.todos[curDate] || []).filter(t => t.status !== 'completed' && t.status !== 'skipped');
+    if (!list.length) { app.toast('今天没有待办'); return; }
+    const lines = ['今日待办 · ' + app.formatDate(curDate), ''];
+    list.forEach(t => { lines.push('□ ' + t.title + '（约 ' + (t.estMinutes || 15) + ' 分钟）'); });
+    lines.push('');
+    const praise = J1Store.praiseLibrary.filter(p => p.scene === 'habit');
+    if (praise.length) lines.push(praise[Math.floor(Math.random() * praise.length)].text);
+    app.copyText(lines.join('\n')).then(ok => app.toast(ok ? '已复制，可粘贴给孩子' : '复制失败'));
+  };
+
+  /* ---------- 番茄钟 ---------- */
+  let pomoTimer = null, pomoLeft = 0;
+  window.pomoToggle = function () {
+    if (pomoTimer) {
+      clearInterval(pomoTimer); pomoTimer = null;
+      document.getElementById('pomo-btn').textContent = '继续';
+      return;
+    }
+    if (pomoLeft <= 0) pomoLeft = (J1Store.settings.pomodoroMinutes || 15) * 60;
+    document.getElementById('pomo-btn').textContent = '暂停';
+    pomoTimer = setInterval(() => {
+      pomoLeft--;
+      const m = Math.floor(pomoLeft / 60), s = pomoLeft % 60;
+      document.getElementById('pomo-time').textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+      if (pomoLeft <= 0) {
+        clearInterval(pomoTimer); pomoTimer = null;
+        document.getElementById('pomo-btn').textContent = '开始';
+        J1Store.addHabitEvent('checkin', null, '番茄钟完成');
+        app.toast('🍅 15 分钟到！休息 5 分钟，起来喝口水');
+      }
+    }, 1000);
+  };
+  window.pomoReset = function () {
+    if (pomoTimer) { clearInterval(pomoTimer); pomoTimer = null; }
+    pomoLeft = 0;
+    document.getElementById('pomo-time').textContent = String(J1Store.settings.pomodoroMinutes || 15).padStart(2, '0') + ':00';
+    document.getElementById('pomo-btn').textContent = '开始';
+  };
+
+  window.shiftDay = function (n) {
+    curDate = E.date.shift(curDate, n);
+    render();
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    app.injectNav();
+    try { render(); } catch (e) { console.error(e); }
+  });
+})();
+</script>
+</body>
+</html>
