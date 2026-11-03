@@ -19,10 +19,38 @@
           const res = global.J1Engine.rollOver(global.J1Store, today);
           if (res.changed) global.J1Store.save();
         } catch (e) { console.warn('[App] 顺延处理失败', e); }
+        // AI feed 拉取（异步、静默失败：离线仍可用本地数据）
+        this.applyRemoteFeed();
       }
       this.registerSW();
       this.highlightNav();
       this.checkFirstUse();
+    },
+
+    /**
+     * 拉取 AI 推送的 data/feed.json 并合并（幂等：feedVersion 递增才生效）。
+     * 合并后结算徽章；如果本页已渲染，刷新页面拿到最新数据。
+     */
+    applyRemoteFeed() {
+      if (typeof fetch !== 'function') return;
+      fetch('data/feed.json', { cache: 'no-cache' })
+        .then(r => (r.ok ? r.json() : null))
+        .then(feed => {
+          if (!feed) return;
+          const res = global.J1Store.applyFeed(feed);
+          if (!res.ok || res.skipped) return;
+          try { global.J1Store.evaluateBadges(this.todayStr()); } catch (e) {}
+          // 页面已渲染过 → 刷新一次以呈现新数据（每会话最多刷一次）
+          try {
+            if (!sessionStorage.getItem('j1_feed_reloaded')) {
+              sessionStorage.setItem('j1_feed_reloaded', '1');
+              location.reload();
+              return;
+            }
+          } catch (e) {}
+          if (typeof this.onFeedApplied === 'function') this.onFeedApplied(res);
+        })
+        .catch(() => { /* 离线或无 feed：静默 */ });
     },
 
     todayStr() {
@@ -85,13 +113,15 @@
 
     /* ========== 导航 ========== */
     navHTML() {
+      const I = global.J1Icons;
+      const ic = (n) => (I ? I.render(n, 20) : '');
       return `
         <nav class="bottom-nav">
-          <a href="index.html"><span class="nav-icon">🏠</span><span>看板</span></a>
-          <a href="goals.html"><span class="nav-icon">🎯</span><span>目标</span></a>
-          <a href="tasks.html"><span class="nav-icon">📋</span><span>待办</span></a>
-          <a href="mistakes.html"><span class="nav-icon">📕</span><span>错题</span></a>
-          <a href="growth.html"><span class="nav-icon">🌱</span><span>成长</span></a>
+          <a href="index.html"><span class="nav-icon">${ic('home')}</span><span>看板</span></a>
+          <a href="tasks.html"><span class="nav-icon">${ic('list')}</span><span>待办</span></a>
+          <a href="mistakes.html"><span class="nav-icon">${ic('book')}</span><span>错题</span></a>
+          <a href="plan.html"><span class="nav-icon">${ic('target')}</span><span>计划</span></a>
+          <a href="growth.html"><span class="nav-icon">${ic('leaf')}</span><span>成长</span></a>
         </nav>
       `;
     },

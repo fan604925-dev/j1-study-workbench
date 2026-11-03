@@ -13,8 +13,14 @@
 <div class="page-container">
   <div class="sticky-header flex items-center justify-between">
     <a href="index.html" class="text-sm" style="color:var(--brand);text-decoration:none;">‹ 返回看板</a>
-    <div class="font-bold" style="color:var(--text-strong);">📕 错题库</div>
-    <button class="btn btn-sm btn-primary" onclick="openModal()">＋ 录错题</button>
+    <div class="font-bold flex items-center gap-1" style="color:var(--text-strong);"><span data-icon="book" data-icon-size="18"></span> 错题库</div>
+    <span class="text-xs" style="color:var(--muted);">AI 自动归类</span>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--brand);">
+    <div class="text-xs" style="color:var(--muted);line-height:1.7;">
+      错题由 AI 识别并自动分类：把试卷 / 作业照片发到 WorkBuddy 对话里即可。这里只做一件事——孩子重做后，点「对 / 错」记录结果。
+    </div>
   </div>
 
   <div id="due-box"></div>
@@ -23,51 +29,23 @@
     <div class="chip-row scroll-x" id="filter-chips"></div>
     <div id="mistake-list"></div>
   </div>
-
-  <div class="text-center mb-4">
-    <a class="btn btn-primary" href="plan.html" style="text-decoration:none;">🩹 根据错题生成诊断与补学计划</a>
-  </div>
 </div>
 <div id="bottom-nav"></div>
-
-<!-- 录入弹窗 -->
-<div class="modal-overlay" id="m-modal">
-  <div class="modal-content">
-    <div class="font-bold text-base mb-2">录入错题（三级标签）</div>
-    <label class="form-label">科目</label>
-    <select class="form-input" id="m-subject" onchange="renderKpointSelect()">
-      <option value="math">数学</option><option value="chinese">语文</option><option value="english">英语</option>
-    </select>
-    <label class="form-label">知识点</label>
-    <select class="form-input" id="m-kpoint"></select>
-    <label class="form-label">错因</label>
-    <div class="chip-row" id="m-causes" style="flex-wrap:wrap;"></div>
-    <label class="form-label">题号 / 来源（如：单元测 P2 Q7）</label>
-    <input class="form-input" id="m-source" type="text">
-    <label class="form-label">原题与正确答案（选填，方便重做）</label>
-    <textarea class="form-input" id="m-text" rows="3" placeholder="原题：…&#10;正确答案：…"></textarea>
-    <label class="form-label">关联考试（选填）</label>
-    <select class="form-input" id="m-exam"><option value="">不关联</option></select>
-    <div class="flex gap-2 mt-4">
-      <button class="btn btn-primary flex-1" onclick="saveMistake()">保存（自动排 D1/D3/D7 重做）</button>
-      <button class="btn btn-outline" onclick="document.getElementById('m-modal').classList.remove('active')">取消</button>
-    </div>
-  </div>
-</div>
 
 <script src="js/data/kpoints.js"></script>
 <script src="js/store.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/icons.js"></script>
 <script src="js/app.js"></script>
 <script>
 (function () {
   'use strict';
   const E = J1Engine;
   let filter = { subject: 'all', status: 'all' };
-  let selCause = 'concept';
 
   function render() {
     const today = E.date.today();
+    const I = J1Icons;
 
     // 到期重做置顶
     const due = [];
@@ -81,15 +59,15 @@
     });
     const dueBox = document.getElementById('due-box');
     if (due.length) {
-      dueBox.innerHTML = '<div class="card"><div class="card-title">⏰ 今日到期重做（艾宾浩斯）</div>' +
+      dueBox.innerHTML = '<div class="card"><div class="card-title">今日到期重做（艾宾浩斯）</div>' +
         due.map(d =>
-          '<div class="task-item"><div class="task-checkbox" style="border-color:var(--warning);">🔁</div>' +
+          '<div class="task-item"><div class="task-checkbox" style="border-color:var(--warning);color:var(--warning);">' + I.render('redo', 16) + '</div>' +
           '<div style="flex:1;"><div class="text-sm font-medium">' + app.escapeHtml(d.m.source || d.m.kpointPath || '错题') + '</div>' +
           '<div class="text-xs mt-1" style="color:var(--muted);">' + app.subjectTag(d.m.subject) +
           ' <span class="tag tag-review">' + d.rv.tag + ' · ' + d.rv.date + '</span></div></div>' +
           '<div class="flex flex-col gap-1">' +
-          '<button class="btn btn-sm btn-success" onclick="redo(\'' + d.m.id + '\',\'right\')">✅ 对</button>' +
-          '<button class="btn btn-sm btn-danger" onclick="redo(\'' + d.m.id + '\',\'wrong\')">❌ 错</button></div>' +
+          '<button class="btn btn-sm btn-success" onclick="redo(\'' + d.m.id + '\',\'right\')">对</button>' +
+          '<button class="btn btn-sm btn-danger" onclick="redo(\'' + d.m.id + '\',\'wrong\')">错</button></div>' +
           '</div>').join('') + '</div>';
     } else {
       dueBox.innerHTML = '';
@@ -114,34 +92,36 @@
 
     const box = document.getElementById('mistake-list');
     if (list.length === 0) {
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">📕</div>' +
-        '<div class="text-sm">没有符合条件的错题</div>' +
-        '<div class="text-xs mt-1">每次考试/作业的错题录进来，才能精准补基础</div></div>';
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + I.render('book', 40) + '</div>' +
+        '<div class="text-sm">还没有错题</div>' +
+        '<div class="text-xs mt-1">把试卷照片发到 WorkBuddy 对话里，AI 识别后自动出现在这里</div></div>';
       return;
     }
     box.innerHTML = list.map(m => {
       const k = kmap[m.kpointId];
-      const kname = k ? k.name : '未分类';
+      const kname = k ? k.name : '待归类';
       const statusTag = m.status === 'redo_right'
         ? '<span class="tag" style="background:#eafaf0;color:#166534;">重做对</span>'
         : m.status === 'redo_wrong'
           ? '<span class="tag" style="background:#fdecec;color:#991b1b;">重做错×' + (m.failCount || 1) + '</span>'
           : '<span class="tag tag-soft">未重做</span>';
+      const aiTag = m.aiRecognized
+        ? '<span class="tag" style="background:#e8f1fd;color:#185FA5;">AI 识别</span>' : '';
       return '<details class="task-item" style="display:block;">' +
         '<summary style="list-style:none;cursor:pointer;display:flex;align-items:center;">' +
         '<div style="flex:1;">' +
         '<div class="flex items-center gap-1 flex-wrap mb-1">' + app.subjectTag(m.subject) +
-        '<span class="tag tag-cause">' + E.causeName(m.cause) + '</span>' + statusTag + '</div>' +
+        '<span class="tag tag-cause">' + E.causeName(m.cause) + '</span>' + statusTag + aiTag + '</div>' +
         '<div class="text-sm font-medium">' + app.escapeHtml(kname) +
         ' <span class="text-xs font-normal" style="color:var(--muted);">' + app.escapeHtml(m.source || '') + '</span></div>' +
         '<div class="text-xs mt-1" style="color:var(--muted);">' + m.date +
         (nextReview(m) ? ' · 下次重做 ' + nextReview(m) : '') + '</div></div></summary>' +
         (m.questionText ? '<div class="text-xs mt-2 p-2 rounded-lg" style="background:var(--surface-2);color:var(--muted);white-space:pre-wrap;">' + app.escapeHtml(m.questionText) + '</div>' : '') +
         '<div class="flex gap-2 mt-2 flex-wrap">' +
-        '<button class="btn btn-sm btn-success" onclick="redo(\'' + m.id + '\',\'right\')">✅ 重做对</button>' +
-        '<button class="btn btn-sm btn-danger" onclick="redo(\'' + m.id + '\',\'wrong\')">❌ 重做错</button>' +
-        '<button class="btn btn-sm btn-outline" onclick="archiveM(\'' + m.id + '\')">📦 归档</button>' +
-        '<button class="del-btn" onclick="delM(\'' + m.id + '\')">🗑️</button></div>' +
+        '<button class="btn btn-sm btn-success" onclick="redo(\'' + m.id + '\',\'right\')">重做对</button>' +
+        '<button class="btn btn-sm btn-danger" onclick="redo(\'' + m.id + '\',\'wrong\')">重做错</button>' +
+        '<button class="btn btn-sm btn-outline" onclick="archiveM(\'' + m.id + '\')">归档</button>' +
+        '<button class="del-btn" onclick="delM(\'' + m.id + '\')" aria-label="删除">' + I.render('trash', 16) + '</button></div>' +
         '</details>';
     }).join('');
   }
@@ -154,80 +134,17 @@
 
   window.setF = function (k, v) { filter[k] = v; render(); };
 
-  /* ---------- 录入 ---------- */
-  window.openModal = function () {
-    const params = new URLSearchParams(location.search);
-    const examId = params.get('examId');
-    const subject = params.get('subject');
-    if (subject) document.getElementById('m-subject').value = subject;
-    if (examId) {
-      const ex = J1Store.exams.find(e => e.id === examId);
-      if (ex) {
-        document.getElementById('m-subject').value = ex.subject;
-        document.getElementById('m-source').value = (ex.source || typeName(ex.type)) + ' 试卷';
-      }
-    }
-    // 考试下拉
-    const exSel = document.getElementById('m-exam');
-    exSel.innerHTML = '<option value="">不关联</option>' + J1Store.exams.slice(0, 20).map(e =>
-      '<option value="' + e.id + '" ' + (e.id === examId ? 'selected' : '') + '>' +
-      e.date + ' ' + app.subjectName(e.subject) + ' ' + (typeName(e.type) || '') + ' ' + e.score + '分</option>').join('');
-    renderKpointSelect();
-    renderCauses();
-    document.getElementById('m-modal').classList.add('active');
-  };
-
-  function typeName(t) { return { unit: '单元测', quiz: '随堂测', monthly: '月考', midterm: '期中', final: '期末' }[t] || '考试'; }
-
-  window.renderKpointSelect = function () {
-    const subj = document.getElementById('m-subject').value;
-    const kps = J1Store.getKpoints().filter(k => k.subject === subj);
-    document.getElementById('m-kpoint').innerHTML =
-      '<option value="_custom.unclassified">（不确定，先不分类）</option>' +
-      kps.map(k => '<option value="' + k.id + '">' + app.escapeHtml(k.chapter) + ' · ' + app.escapeHtml(k.name) + '</option>').join('');
-  };
-
-  function renderCauses() {
-    document.getElementById('m-causes').innerHTML = J1KPOINTS.causes.map(c =>
-      '<span class="chip ' + (selCause === c.id ? 'active' : '') + '" onclick="pickCause(\'' + c.id + '\')">' + c.name + '</span>'
-    ).join('');
-  }
-  window.pickCause = function (id) { selCause = id; renderCauses(); };
-
-  window.saveMistake = function () {
-    const kp = document.getElementById('m-kpoint').value;
-    const k = J1Store.getKpoint(kp);
-    const src = document.getElementById('m-source').value.trim();
-    if (!src && kp === '_custom.unclassified') { app.toast('填一下题号/来源，或选个知识点'); return; }
-    const m = J1Store.addMistake({
-      subject: document.getElementById('m-subject').value,
-      kpointId: kp,
-      kpointPath: k ? (k.chapter + '/' + k.name) : '',
-      cause: selCause,
-      source: src,
-      questionText: document.getElementById('m-text').value.trim(),
-      examId: document.getElementById('m-exam').value || null
-    });
-    document.getElementById('m-modal').classList.remove('active');
-    document.getElementById('m-source').value = '';
-    document.getElementById('m-text').value = '';
-    render();
-    const fresh = J1Store.evaluateBadges();
-    if (fresh.length) app.toast('🏅 新徽章：' + fresh.map(b => b.name).join('、'));
-    else app.toast('已录入；明/3/7 天后会提醒重做');
-  };
-
   window.redo = function (id, result) {
     const res = J1Store.recordRedo(id, result);
     if (res && result === 'right') {
-      app.toast('重做对！连对 3 次 + 达到掌握标准就点亮 💡');
+      app.toast('重做对！连对 3 次 + 达到掌握标准就点亮');
     } else if (res && res.rescheduled) {
       app.toast('没关系，已安排后天再试一次；连续不会就回到微讲重学');
     } else if (res) {
       app.toast('已记录；建议回到「微讲」步骤重学一遍');
     }
     const fresh = J1Store.evaluateBadges();
-    if (fresh.length) app.toast('🏅 新徽章：' + fresh.map(b => b.name).join('、'));
+    if (fresh.length) app.toast('新徽章：' + fresh.map(b => b.name).join('、'));
     render();
   };
 
@@ -245,6 +162,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     app.injectNav();
+    J1Icons.hydrate();
     try { render(); } catch (e) { console.error(e); }
   });
 })();

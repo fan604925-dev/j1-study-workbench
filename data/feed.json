@@ -1,0 +1,32 @@
+{
+  "app": "j1-study-workbench",
+  "feedVersion": 1,
+  "generatedAt": "2026-11-03T20:00:00+08:00",
+  "generatedBy": "ai-pipeline",
+  "settings": {
+    "child": {
+      "name": "哥哥",
+      "grade": "初一上",
+      "weakSubject": "math",
+      "note": "牙齿矫正 + OK 镜护理中，晚间可用时间约 30-40 分钟"
+    }
+  },
+  "goals": [],
+  "weekTasks": [],
+  "todos": {},
+  "exams": [],
+  "mistakes": [],
+  "plans": [],
+  "praiseLibrary": [],
+  "privileges": [],
+  "aiNotes": [
+    {
+      "id": "ai_init_1",
+      "createdAt": "2026-11-03",
+      "raw": "工作台已切换为 AI 全托管模式：把试卷/作业照片、分数、考试时间、复习情况直接发到 WorkBuddy 对话里，AI 会自动识别、归类并更新本看板。"
+    }
+  ],
+  "habitEvents": [],
+  "kpointOverrides": [],
+  "kpointStates": {}
+}

@@ -12,14 +12,14 @@
 <body>
 <div class="page-container">
   <div class="sticky-header flex items-center justify-between">
-    <div class="font-bold" style="color:var(--text-strong);">🌱 成长激励</div>
+    <div class="font-bold flex items-center gap-1" style="color:var(--text-strong);"><span data-icon="leaf" data-icon-size="18"></span> 成长激励</div>
     <span class="text-xs" style="color:var(--muted);">仅家长可见 · 奖励努力不奖励分数</span>
   </div>
 
   <!-- 连续打卡 -->
   <div class="card">
     <div class="flex items-center justify-between mb-2">
-      <div class="card-title" style="margin:0;">🔥 连续打卡</div>
+      <div class="card-title flex items-center gap-1" style="margin:0;"><span data-icon="fire" data-icon-size="16"></span> 连续打卡</div>
       <div class="text-xs" style="color:var(--muted);">最长 <b id="streak-best">0</b> 天</div>
     </div>
     <div class="flex items-center gap-4">
@@ -32,40 +32,28 @@
 
   <!-- 徽章墙 -->
   <div class="card">
-    <div class="card-title">🏅 徽章墙</div>
+    <div class="card-title flex items-center gap-1"><span data-icon="medal" data-icon-size="16"></span> 徽章墙</div>
     <div class="grid grid-cols-4 gap-2" id="badge-wall"></div>
     <div class="text-xs mt-2" style="color:var(--muted);">徽章记录的是行为（重做、提问、坚持），不是分数；解锁后不撤销</div>
   </div>
 
   <!-- 知识点点亮地图 -->
   <div class="card">
-    <div class="card-title">✨ 知识点点亮地图</div>
+    <div class="card-title flex items-center gap-1"><span data-icon="sparkle" data-icon-size="16"></span> 知识点点亮地图</div>
     <div class="text-xs mb-2" style="color:var(--muted);">连对 3 次 + 掌握度达标 + 妈妈确认掌握标准 → 点亮一个知识点</div>
     <div id="star-map"></div>
   </div>
 
   <!-- 表扬话术库 -->
   <div class="card">
-    <div class="card-title">💬 表扬话术库</div>
+    <div class="card-title flex items-center gap-1"><span data-icon="chat" data-icon-size="16"></span> 表扬话术库</div>
     <div class="chip-row scroll-x mb-2" id="scene-chips"></div>
     <div id="praise-list"></div>
-    <div class="mt-2">
-      <button class="btn btn-outline btn-sm" onclick="toggleAddPraise()">＋ 添加自己的话术</button>
-      <div id="add-praise" style="display:none;" class="mt-2">
-        <select class="form-input" id="pr-scene">
-          <option value="hard_task">完成难任务</option><option value="exam_progress">考试进步</option>
-          <option value="initiative">主动学习</option><option value="frustration">遇到挫折</option>
-          <option value="habit">坚持习惯</option>
-        </select>
-        <textarea class="form-input" id="pr-text" rows="2" placeholder="写一句你能自然说出口的话：具体行为 + 过程，不评聪明不比较"></textarea>
-        <button class="btn btn-primary btn-sm mt-2" onclick="addPraise()">保存</button>
-      </div>
-    </div>
   </div>
 
   <!-- 特权清单 -->
   <div class="card">
-    <div class="card-title">🎁 非货币小特权</div>
+    <div class="card-title flex items-center gap-1"><span data-icon="gift" data-icon-size="16"></span> 非货币小特权</div>
     <div class="text-xs mb-2" style="color:var(--muted);">不定价格、不攒兑换——妈妈觉得他这周够努力就直接送，让奖励是惊喜不是交易</div>
     <div id="privilege-list"></div>
   </div>
@@ -79,6 +67,7 @@
 <script src="js/data/kpoints.js"></script>
 <script src="js/store.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/icons.js"></script>
 <script src="js/app.js"></script>
 <script>
 (function () {
@@ -134,7 +123,7 @@
       const v = def.type === 'streak' ? streakVal : (counts[def.type] || 0);
       const pct = Math.min(100, Math.round(v / def.threshold * 100));
       return '<div class="badge-item ' + (b ? '' : 'locked') + '" onclick="badgeInfo(\'' + def.id + '\')">' +
-        '<div class="badge-icon">' + def.icon + '</div>' +
+        '<div class="badge-icon">' + J1Icons.render(def.icon, 26) + '</div>' +
         '<div class="badge-name">' + def.name + '</div>' +
         (b ? '<div class="text-xs" style="color:var(--success);">已解锁</div>'
            : '<div style="margin:4px 6px 0;">' + app.progressBar(pct / 100, 'yellow') + '</div>' +
@@ -146,7 +135,7 @@
   window.badgeInfo = function (id) {
     const def = E.BADGES.find(b => b.id === id);
     const got = J1Store.badges.some(b => b.id === id);
-    app.toast(def.icon + ' ' + def.name + '：' + def.desc + (got ? '（已解锁）' : ''));
+    app.toast(def.name + '：' + def.desc + (got ? '（已解锁）' : ''));
   };
 
   function renderStars() {
@@ -162,7 +151,7 @@
       bySubj[subj].forEach(k => {
         const st = J1Store.kpointStates[k.id];
         const cls = st && st.lit ? 'lit' : st && (st.mastery || 0) > 0 ? 'learning' : '';
-        const icon = st && st.lit ? '✨' : st && (st.mastery || 0) > 0 ? '·' : '';
+        const icon = st && st.lit ? J1Icons.render('sparkle', 13) : st && (st.mastery || 0) > 0 ? '·' : '';
         html += '<div class="star-node ' + cls + '" onclick="kpointInfo(\'' + k.id + '\')" title="' + app.escapeHtml(k.name) + '">' +
           (icon || '<span style="font-size:10px;color:var(--muted);">' + app.escapeHtml(k.chapter.slice(0, 2)) + '</span>') + '</div>';
       });
@@ -176,12 +165,12 @@
     if (!k) return;
     const st = J1Store.getKpointState(id);
     const mistakes = J1Store.mistakes.filter(m => m.kpointId === id && !m.archived);
-    const msg = '📖 ' + k.name + '（' + k.chapter + '）\n' +
+    const msg = k.name + '（' + k.chapter + '）\n' +
       '怎么补：' + k.prescription.microLesson + '\n' +
       '练什么：' + k.prescription.practiceTypes.join(' / ') + '\n' +
       '掌握标准：' + k.prescription.masteryCriteria + '\n' +
       '相关错题：' + mistakes.length + ' 题；掌握度 ' + Math.round((st.mastery || 0) * 100) + '%，连对 ' + (st.redoRightStreak || 0) + ' 次' +
-      (st.lit ? '\n✨ 已点亮！' :
+      (st.lit ? '\n已点亮！' :
         (st.redoRightStreak >= 3 && (st.mastery || 0) >= 0.8 ? '\n条件已满足，可确认点亮' : ''));
     if (st.redoRightStreak >= 3 && (st.mastery || 0) >= 0.8 && !st.lit) {
       if (app.confirm(msg + '\n\n确认「已达到掌握标准」并点亮这个知识点吗？')) {
@@ -192,8 +181,8 @@
           const fresh = J1Store.evaluateBadges();
           const praises = J1Store.praiseLibrary.filter(p => p.scene === 'hard_task' || p.scene === 'habit');
           const p = praises.length ? praises[Math.floor(Math.random() * praises.length)] : null;
-          app.toast('✨ 点亮了「' + k.name + '」！' + (p ? '话术参考：' + p.text.slice(0, 30) + '…' : ''));
-          if (fresh.length) setTimeout(() => app.toast('🏅 新徽章：' + fresh.map(b => b.name).join('、')), 1200);
+          app.toast('点亮了「' + k.name + '」！' + (p ? '话术参考：' + p.text.slice(0, 30) + '…' : ''));
+          if (fresh.length) setTimeout(() => app.toast('新徽章：' + fresh.map(b => b.name).join('、')), 1200);
         }
         render();
       }
@@ -211,8 +200,8 @@
       ? list.map(p =>
         '<div class="praise-card"><div class="mb-1">' + app.escapeHtml(p.text) + '</div>' +
         '<div class="flex items-center justify-between">' +
-        '<span class="text-xs" style="color:var(--muted);">' + (p.tip ? '💡 ' + app.escapeHtml(p.tip) : '') + '</span>' +
-        '<button class="btn btn-sm btn-ghost" onclick="usePraise(\'' + p.id + '\')">📋 复制</button></div></div>'
+        '<span class="text-xs" style="color:var(--muted);">' + (p.tip ? app.escapeHtml(p.tip) : '') + '</span>' +
+        '<button class="btn btn-sm btn-ghost flex items-center gap-1" onclick="usePraise(\'' + p.id + '\')">' + J1Icons.render('copy', 13) + ' 复制</button></div></div>'
       ).join('')
       : '<div class="text-xs text-center py-2" style="color:var(--muted);">这个场景还没有话术</div>';
   }
@@ -221,31 +210,19 @@
     const p = J1Store.usePraise(id);
     app.copyText(p ? p.text : '').then(ok => app.toast(ok ? '已复制，照着说就行' : '复制失败'));
   };
-  window.toggleAddPraise = function () {
-    const d = document.getElementById('add-praise');
-    d.style.display = d.style.display === 'none' ? 'block' : 'none';
-  };
-  window.addPraise = function () {
-    const t = document.getElementById('pr-text').value.trim();
-    if (!t) { app.toast('写一句吧'); return; }
-    J1Store.addPraise(document.getElementById('pr-scene').value, t);
-    document.getElementById('pr-text').value = '';
-    toggleAddPraise();
-    renderPraise();
-    app.toast('已保存');
-  };
 
   function renderPrivileges() {
+    const I = J1Icons;
     const weekKey = E.date.weekStart(E.date.today());
     const grantedThisWeek = J1Store.privileges.find(p => p.grantedWeek === weekKey);
     let html = grantedThisWeek
-      ? '<div class="praise-card">本周已送：' + grantedThisWeek.icon + ' ' + app.escapeHtml(grantedThisWeek.title) +
+      ? '<div class="praise-card flex items-center gap-2">' + I.render(grantedThisWeek.icon, 18) + ' 本周已送：' + app.escapeHtml(grantedThisWeek.title) +
         (grantedThisWeek.usedAt ? '（已使用）' : '（未使用）') + '</div>'
       : '<div class="text-xs mb-2" style="color:var(--warning);">本周还没送过——看到他努力的时刻就送一个</div>';
     html += '<div class="grid grid-cols-1 gap-2">' + J1Store.privileges.map(p => {
       const used = p.grantedWeek === weekKey;
       return '<div class="task-item" style="margin-bottom:6px;">' +
-        '<div style="flex:1;"><div class="text-sm font-medium">' + p.icon + ' ' + app.escapeHtml(p.title) + '</div>' +
+        '<div style="flex:1;"><div class="text-sm font-medium flex items-center gap-1">' + I.render(p.icon, 18) + ' ' + app.escapeHtml(p.title) + '</div>' +
         '<div class="text-xs" style="color:var(--muted);">' + app.escapeHtml(p.note || '') + '</div></div>' +
         (used
           ? '<span class="tag" style="background:#eafaf0;color:#166534;">本周已送</span>'
@@ -256,19 +233,20 @@
   }
   window.grantPv = function (id) {
     const p = J1Store.grantPrivilege(id, E.date.weekStart(E.date.today()));
-    app.toast('已记录：' + p.icon + ' ' + p.title + '。今晚告诉他，让他自己安排');
+    app.toast('已记录：' + p.title + '。今晚告诉他，让他自己安排');
     renderPrivileges();
   };
 
   window.checkin = function () {
     J1Store.addHabitEvent('checkin', null, '');
     const fresh = J1Store.evaluateBadges();
-    if (fresh.length) app.toast('🏅 新徽章：' + fresh.map(b => b.name).join('、'));
+    if (fresh.length) app.toast('新徽章：' + fresh.map(b => b.name).join('、'));
     render();
   };
 
   document.addEventListener('DOMContentLoaded', function () {
     app.injectNav();
+    J1Icons.hydrate();
     try { render(); } catch (e) { console.error(e); }
   });
 })();

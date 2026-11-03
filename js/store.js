@@ -36,7 +36,8 @@
   };
 
   // 修改默认数据结构时递增，并同步升 service-worker.js 的 CACHE_NAME
-  const DATA_VERSION = '1';
+  // v2：新增 AI feed 通道（applyFeed / meta.lastFeedVersion）；特权图标 emoji → 线性图标名
+  const DATA_VERSION = '2';
 
   const IDB_NAME = 'j1-study-db-v1';
   const IDB_STORE = 'kv';
@@ -86,19 +87,20 @@
   ];
 
   // 低成本非货币特权（无价格、无兑换，妈妈直接「这周送给他」）
+  // icon 为 js/icons.js 线性图标名
   const DEFAULT_PRIVILEGES = [
-    { id: 'pv_1', title: '决定周末晚餐吃什么', icon: '🍜', note: '全家跟着吃他选的' },
-    { id: 'pv_2', title: '晚睡 30 分钟', icon: '🌙', note: '周末晚上用' },
-    { id: 'pv_3', title: '选一部家庭电影', icon: '🎬', note: '全家一起看' },
-    { id: 'pv_4', title: '决定周末去哪散步', icon: '🚶', note: '附近公园路线他定' },
-    { id: 'pv_5', title: '选一本亲子共读的书', icon: '📚', note: '妈妈陪着读' },
-    { id: 'pv_6', title: '免一次家务', icon: '🧦', note: '指定一次不做' },
-    { id: 'pv_7', title: '选今晚餐桌音乐/桌游', icon: '🎵', note: '晚饭时间他做主' },
-    { id: 'pv_8', title: '邀请同学来家里玩一次', icon: '🤝', note: '提前和妈妈约时间' },
-    { id: 'pv_9', title: '妈妈陪打一场球', icon: '🏀', note: '楼下或球场 30 分钟' },
-    { id: 'pv_10', title: '先决定今天 A/B/C 顺序', icon: '🎲', note: '每日待办自选权' },
-    { id: 'pv_11', title: '选周末早餐', icon: '🥞', note: '早餐吃什么他定' },
-    { id: 'pv_12', title: '决定一次家庭拍照地点', icon: '📸', note: '周末拍照他选景' }
+    { id: 'pv_1', title: '决定周末晚餐吃什么', icon: 'noodle', note: '全家跟着吃他选的' },
+    { id: 'pv_2', title: '晚睡 30 分钟', icon: 'moon', note: '周末晚上用' },
+    { id: 'pv_3', title: '选一部家庭电影', icon: 'film', note: '全家一起看' },
+    { id: 'pv_4', title: '决定周末去哪散步', icon: 'walk', note: '附近公园路线他定' },
+    { id: 'pv_5', title: '选一本亲子共读的书', icon: 'book', note: '妈妈陪着读' },
+    { id: 'pv_6', title: '免一次家务', icon: 'sock', note: '指定一次不做' },
+    { id: 'pv_7', title: '选今晚餐桌音乐/桌游', icon: 'music', note: '晚饭时间他做主' },
+    { id: 'pv_8', title: '邀请同学来家里玩一次', icon: 'handshake', note: '提前和妈妈约时间' },
+    { id: 'pv_9', title: '妈妈陪打一场球', icon: 'basketball', note: '楼下或球场 30 分钟' },
+    { id: 'pv_10', title: '先决定今天 A/B/C 顺序', icon: 'dice', note: '每日待办自选权' },
+    { id: 'pv_11', title: '选周末早餐', icon: 'pancake', note: '早餐吃什么他定' },
+    { id: 'pv_12', title: '决定一次家庭拍照地点', icon: 'photo', note: '周末拍照他选景' }
   ];
 
   /* ==================== IndexedDB 封装 ==================== */
@@ -172,7 +174,7 @@
       this.praiseLibrary = JSON.parse(JSON.stringify(DEFAULT_PRAISE_LIBRARY));
       this.aiNotes = [];
       this.progressLog = [];
-      this.meta = { lastRollOverDate: null, lastExportAt: null, visited: false };
+      this.meta = { lastRollOverDate: null, lastExportAt: null, visited: false, lastFeedVersion: 0, lastFeedAt: null };
       this._lsAvailable = true;
     }
 
@@ -218,7 +220,7 @@
       this.praiseLibrary = get(STORAGE_KEYS.PRAISE_LIBRARY, JSON.parse(JSON.stringify(DEFAULT_PRAISE_LIBRARY)));
       this.aiNotes = get(STORAGE_KEYS.AI_NOTES, []);
       this.progressLog = get(STORAGE_KEYS.PROGRESS_LOG, []);
-      this.meta = Object.assign({ lastRollOverDate: null, lastExportAt: null, visited: false }, get(STORAGE_KEYS.META, {}));
+      this.meta = Object.assign({ lastRollOverDate: null, lastExportAt: null, visited: false, lastFeedVersion: 0, lastFeedAt: null }, get(STORAGE_KEYS.META, {}));
     }
 
     _serializeAll() {
@@ -373,8 +375,15 @@
         }
       });
 
-      // 6) meta 补默认 + 写版本号
-      this.meta = Object.assign({ lastRollOverDate: null, lastExportAt: null, visited: false }, this.meta || {});
+      // 6) 存量特权图标迁移：emoji → 线性图标名（幂等）
+      const ICON_MIGRATION = {
+        '🍜': 'noodle', '🌙': 'moon', '🎬': 'film', '🚶': 'walk', '📚': 'book', '🧦': 'sock',
+        '🎵': 'music', '🤝': 'handshake', '🏀': 'basketball', '🎲': 'dice', '🥞': 'pancake', '📸': 'photo'
+      };
+      this.privileges.forEach(p => { if (p.icon && ICON_MIGRATION[p.icon]) p.icon = ICON_MIGRATION[p.icon]; });
+
+      // 7) meta 补默认 + 写版本号
+      this.meta = Object.assign({ lastRollOverDate: null, lastExportAt: null, visited: false, lastFeedVersion: 0, lastFeedAt: null }, this.meta || {});
       try { localStorage.setItem(STORAGE_KEYS.VERSION, DATA_VERSION); } catch (e) { /* 忽略 */ }
     }
 
@@ -795,6 +804,259 @@
       this._repairData();
       this.save();
       return { ok: true, warnings: warnings };
+    }
+
+    /**
+     * AI feed 注入通道（v2 全托管核心）：
+     * - feed 与 exportData 同构 + feedVersion；feedVersion <= meta.lastFeedVersion 时跳过（幂等）
+     * - 新实体按 id 插入；已有实体【只更新 AI 负责的内容字段】，
+     *   严格保留本地进度字段（勾选状态、重做记录、复习完成、徽章、点亮等）
+     * - 返回 {ok, skipped, applied:{...计数}, warnings}
+     */
+    applyFeed(feed) {
+      const warnings = [];
+      if (!feed || feed.app !== 'j1-study-workbench') {
+        return { ok: false, skipped: false, applied: null, warnings: ['feed 标识不对，已忽略'] };
+      }
+      const v = Number(feed.feedVersion) || 0;
+      if (!v) {
+        return { ok: false, skipped: false, applied: null, warnings: ['feed 缺少 feedVersion，已忽略'] };
+      }
+      if (v <= (Number(this.meta.lastFeedVersion) || 0)) {
+        return { ok: false, skipped: true, applied: null, warnings: ['feed 版本不高于本地，已跳过'] };
+      }
+      const E = global.J1Engine;
+      const applied = { goals: 0, weekTasks: 0, todos: 0, exams: 0, mistakes: 0, plans: 0,
+        praiseLibrary: 0, privileges: 0, aiNotes: 0, habitEvents: 0, kpointOverrides: 0, kpointStates: 0, settings: false };
+
+      // ---- settings：AI 下发即生效（v2 已无用户设置表单）----
+      if (feed.settings && typeof feed.settings === 'object') {
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, this.settings, feed.settings);
+        applied.settings = true;
+      }
+
+      // ---- goals：内容字段可更新；status/lastMeasured 本地保留 ----
+      if (Array.isArray(feed.goals)) {
+        feed.goals.forEach(g => {
+          if (!g || !g.id) return;
+          const cur = this.goals.find(x => x.id === g.id);
+          if (cur) {
+            ['month', 'subject', 'title', 'metric', 'kpointIds', 'note', 'startDate', 'endDate'].forEach(f => {
+              if (g[f] !== undefined) cur[f] = g[f];
+            });
+          } else {
+            this.goals.push(Object.assign({
+              id: g.id, month: todayStr().slice(0, 7), subject: 'math', title: '',
+              metric: { type: 'count', target: 1, unit: '题', baseline: 0 },
+              kpointIds: [], status: 'active', note: '',
+              startDate: null, endDate: null, lastMeasured: null, lastMeasuredAt: null
+            }, g));
+            applied.goals++;
+          }
+        });
+      }
+
+      // ---- weekTasks：内容字段可更新；status/manualAdjust/progressMode/manualProgress 本地保留 ----
+      if (Array.isArray(feed.weekTasks)) {
+        feed.weekTasks.forEach(w => {
+          if (!w || !w.id) return;
+          const cur = this.weekTasks.find(x => x.id === w.id);
+          if (cur) {
+            ['goalId', 'weekStart', 'weekEnd', 'subject', 'title', 'target', 'suggestedValue', 'kpointIds'].forEach(f => {
+              if (w[f] !== undefined) cur[f] = w[f];
+            });
+          } else {
+            this.weekTasks.push(Object.assign({
+              id: w.id, goalId: null, weekStart: null, weekEnd: null, subject: 'math',
+              title: '', target: { type: 'count', value: 1, unit: '题' }, suggestedValue: 1,
+              manualAdjust: { delta: 0, reason: '' }, derived: 'ai', progressMode: 'auto',
+              manualProgress: 0, kpointIds: [], status: 'active'
+            }, w));
+            applied.weekTasks++;
+          }
+        });
+      }
+
+      // ---- todos：已有 id 一律保留本地（进度），只插入新 id（按 id 幂等）----
+      if (feed.todos && typeof feed.todos === 'object' && !Array.isArray(feed.todos)) {
+        Object.keys(feed.todos).forEach(date => {
+          const inc = feed.todos[date] || [];
+          if (!Array.isArray(inc)) return;
+          if (!this.todos[date]) this.todos[date] = [];
+          const ids = new Set(this.todos[date].map(t => t.id));
+          inc.forEach(t => {
+            if (!t || !t.id || ids.has(t.id)) return;
+            this.todos[date].push(Object.assign({
+              id: t.id, date: date, weekTaskId: null, goalId: null,
+              source: 'plan', planId: null, mistakeId: null, kpointId: null,
+              subject: 'other', title: '', targetValue: 1, estMinutes: 15,
+              hardToStart: false, choiceGroup: null,
+              status: 'pending', completedAt: null, doneValue: 0,
+              carryOver: false, carryCount: 0, originId: null, originDate: null,
+              stagnant: false, ebbinghausTag: null, rescheduleCount: 0, note: ''
+            }, t, { date: date }));
+            if (!this.todos[date][this.todos[date].length - 1].originId) {
+              this.todos[date][this.todos[date].length - 1].originId = t.id;
+            }
+            if (!this.todos[date][this.todos[date].length - 1].originDate) {
+              this.todos[date][this.todos[date].length - 1].originDate = date;
+            }
+            ids.add(t.id);
+            applied.todos++;
+          });
+        });
+      }
+
+      // ---- exams：内容字段可更新（AI 可修正分数）；mistakeIds/createdAt 本地保留 ----
+      if (Array.isArray(feed.exams)) {
+        feed.exams.forEach(x => {
+          if (!x || !x.id) return;
+          const cur = this.exams.find(e => e.id === x.id);
+          if (cur) {
+            ['date', 'subject', 'type', 'score', 'fullScore', 'classRank', 'gradeRank', 'source', 'note'].forEach(f => {
+              if (x[f] !== undefined) cur[f] = x[f];
+            });
+          } else {
+            this.exams.push(Object.assign({
+              id: x.id, date: todayStr(), subject: 'math', type: 'unit',
+              score: 0, fullScore: 100, classRank: null, gradeRank: null,
+              source: '', note: '', mistakeIds: [], createdAt: todayStr()
+            }, x, { createdAt: todayStr() }));
+            applied.exams++;
+          }
+        });
+      }
+
+      // ---- mistakes：内容字段可更新（AI 可修正归类/错因）；进度字段全部本地保留 ----
+      if (Array.isArray(feed.mistakes)) {
+        feed.mistakes.forEach(x => {
+          if (!x || !x.id) return;
+          const cur = this.mistakes.find(m => m.id === x.id);
+          if (cur) {
+            ['examId', 'date', 'subject', 'kpointId', 'kpointPath', 'source', 'cause', 'questionText', 'correctAnswer'].forEach(f => {
+              if (x[f] !== undefined) cur[f] = x[f];
+            });
+            if (cur.examId) {
+              const ex = this.exams.find(e => e.id === cur.examId);
+              if (ex && ex.mistakeIds.indexOf(cur.id) < 0) ex.mistakeIds.push(cur.id);
+            }
+          } else {
+            const ms = Object.assign({
+              id: x.id, examId: null, date: todayStr(), subject: 'math',
+              kpointId: '_custom.unclassified', kpointPath: '', source: '',
+              cause: 'concept', questionText: '', correctAnswer: '',
+              status: 'todo', redoHistory: [], failCount: 0, archived: false,
+              aiRecognized: true
+            }, x);
+            ms.reviewSchedule = (E && E.buildReviewSchedule) ? E.buildReviewSchedule(ms.date, this.settings) : [];
+            this.mistakes.push(ms);
+            if (ms.examId) {
+              const ex = this.exams.find(e => e.id === ms.examId);
+              if (ex && ex.mistakeIds.indexOf(ms.id) < 0) ex.mistakeIds.push(ms.id);
+            }
+            applied.mistakes++;
+          }
+        });
+      }
+
+      // ---- plans：插入新计划；新计划为 active 时旧 active 转 replaced ----
+      if (Array.isArray(feed.plans)) {
+        feed.plans.forEach(p => {
+          if (!p || !p.id) return;
+          if (this.plans.some(x => x.id === p.id)) return;
+          if (p.status === 'active') {
+            this.plans.forEach(x => { if (x.status === 'active') x.status = 'replaced'; });
+          }
+          this.plans.push(Object.assign({
+            id: p.id, createdAt: todayStr(), status: 'active',
+            basedOn: { topKpointIds: [], mistakeCount: 0, generatedBy: 'ai' }, days: []
+          }, p));
+          applied.plans++;
+        });
+      }
+
+      // ---- praiseLibrary：新增直接插入；已有只更新文案（usedCount 本地保留）----
+      if (Array.isArray(feed.praiseLibrary)) {
+        feed.praiseLibrary.forEach(p => {
+          if (!p || !p.id) return;
+          const cur = this.praiseLibrary.find(x => x.id === p.id);
+          if (cur) {
+            ['scene', 'text', 'tip'].forEach(f => { if (p[f] !== undefined) cur[f] = p[f]; });
+          } else {
+            this.praiseLibrary.push(Object.assign({ id: p.id, scene: 'habit', text: '', tip: '', usedCount: 0 }, p));
+            applied.praiseLibrary++;
+          }
+        });
+      }
+
+      // ---- privileges：新增直接插入；已有只更新标题/图标/说明（授予状态本地保留）----
+      if (Array.isArray(feed.privileges)) {
+        feed.privileges.forEach(p => {
+          if (!p || !p.id) return;
+          const cur = this.privileges.find(x => x.id === p.id);
+          if (cur) {
+            ['title', 'icon', 'note'].forEach(f => { if (p[f] !== undefined) cur[f] = p[f]; });
+          } else {
+            this.privileges.push(Object.assign({ id: p.id, title: '', icon: 'star', note: '' }, p));
+            applied.privileges++;
+          }
+        });
+      }
+
+      // ---- aiNotes：只追加新 id ----
+      if (Array.isArray(feed.aiNotes)) {
+        feed.aiNotes.forEach(n => {
+          if (!n || !n.id) return;
+          if (this.aiNotes.some(x => x.id === n.id)) return;
+          this.aiNotes.push(Object.assign({
+            id: n.id, createdAt: todayStr(), raw: '', parsed: null, warnings: [], applied: null, undone: false
+          }, n));
+          applied.aiNotes++;
+        });
+      }
+
+      // ---- habitEvents：只追加新 id（AI 可代记「主动提问/讲解」等事件）----
+      if (Array.isArray(feed.habitEvents)) {
+        feed.habitEvents.forEach(h => {
+          if (!h || !h.id) return;
+          if (this.habitEvents.some(x => x.id === h.id)) return;
+          this.habitEvents.push(Object.assign({ id: h.id, date: todayStr(), type: 'checkin', refId: null, note: '' }, h));
+          applied.habitEvents++;
+        });
+      }
+
+      // ---- kpointOverrides：AI 补充的自定义知识点只追加新 id ----
+      if (Array.isArray(feed.kpointOverrides)) {
+        feed.kpointOverrides.forEach(k => {
+          if (!k || !k.id) return;
+          if (this.kpointOverrides.some(x => x.id === k.id)) return;
+          this.kpointOverrides.push(Object.assign({}, k, { custom: true, enabled: true }));
+          applied.kpointOverrides++;
+        });
+      }
+      if (Array.isArray(feed.deletedKpointIds)) {
+        this.deletedKpointIds = Array.from(new Set(this.deletedKpointIds.concat(feed.deletedKpointIds)));
+      }
+
+      // ---- kpointStates：AI 更新 mastery/criteriaConfirmed；lit 一旦点亮永保留 ----
+      if (feed.kpointStates && typeof feed.kpointStates === 'object') {
+        Object.keys(feed.kpointStates).forEach(id => {
+          const fs = feed.kpointStates[id];
+          if (!fs || typeof fs !== 'object') return;
+          const st = this.getKpointState(id);
+          const wasLit = st.lit, wasLitAt = st.litAt;
+          Object.assign(st, fs);
+          if (wasLit) { st.lit = true; st.litAt = wasLitAt; } // 点亮不可逆
+          applied.kpointStates++;
+        });
+      }
+
+      // ---- 落库 ----
+      this._repairData();
+      this.meta.lastFeedVersion = v;
+      this.meta.lastFeedAt = feed.generatedAt || new Date().toISOString();
+      this.save();
+      return { ok: true, skipped: false, applied: applied, warnings: warnings };
     }
 
     // 只删 j1_ 前缀的键，同步清 IDB 备份键（不清缓存，不动其他应用数据）

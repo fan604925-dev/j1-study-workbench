@@ -18,7 +18,19 @@
       <div class="text-lg font-bold" id="today-cn" style="color:var(--text-strong);"></div>
       <div class="text-xs" style="color:var(--muted);">把基础一小步一小步补牢</div>
     </div>
-    <a href="settings.html" class="text-2xl no-underline" style="text-decoration:none;">⚙️</a>
+    <a href="settings.html" class="text-xl no-underline" style="text-decoration:none;color:var(--muted);" aria-label="设置"><span data-icon="settings" data-icon-size="22"></span></a>
+  </div>
+
+  <!-- 材料投放口 -->
+  <div class="card" style="border-left:3px solid var(--brand);">
+    <div class="flex items-start gap-2">
+      <span style="color:var(--brand);" data-icon="camera" data-icon-size="22"></span>
+      <div style="flex:1;">
+        <div class="text-sm font-semibold" style="color:var(--text-strong);">把孩子的材料发到 WorkBuddy 对话里</div>
+        <div class="text-xs mt-1" style="color:var(--muted);">试卷 / 作业照片、考了几分、哪天考、复习了什么、哪个知识点学会了——随手发，AI 自动识别、归类、更新这个看板。不用录、不用分类。</div>
+        <div class="text-xs mt-1" id="feed-meta" style="color:var(--muted);"></div>
+      </div>
+    </div>
   </div>
 
   <!-- 孩子概况 + 今日进度环 -->
@@ -31,36 +43,41 @@
     <div class="text-xs mt-2 text-center" id="baseline-tip" style="color:var(--muted);"></div>
   </div>
 
-  <!-- 月目标进度 -->
+  <!-- 月目标进度（AI 维护） -->
   <div class="card">
-    <div class="card-title"><span>🎯 本月目标</span><a href="goals.html" class="text-xs" style="color:var(--brand);text-decoration:none;">拆解与管理 ›</a></div>
+    <div class="card-title"><span>本月目标</span></div>
     <div id="goal-list"></div>
   </div>
 
   <!-- 图表 -->
   <div class="card">
-    <div class="card-title">📊 近 7 日完成率</div>
+    <div class="card-title">近 7 日完成率</div>
     <div style="height:160px;"><canvas id="chart-week"></canvas></div>
   </div>
   <div class="card">
-    <div class="card-title">📕 错题科目分布</div>
+    <div class="card-title">考试分数趋势</div>
+    <div style="height:170px;"><canvas id="chart-exam"></canvas></div>
+    <div class="text-xs mt-2" id="exam-trend-text" style="color:var(--muted);"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">错题科目分布</div>
     <div style="height:180px;"><canvas id="chart-mistake"></canvas></div>
   </div>
 
   <!-- 需关注 -->
   <div class="card">
-    <div class="card-title">⚠️ 需要关注</div>
+    <div class="card-title">需要关注</div>
     <div id="attention-list"></div>
   </div>
 
   <!-- 快捷入口 -->
   <div class="card">
-    <div class="card-title">⚡ 快捷入口</div>
+    <div class="card-title">快捷入口</div>
     <div class="quick-grid" id="quick-grid"></div>
   </div>
 
   <div class="text-center mt-4 mb-2">
-    <button class="btn btn-outline btn-sm" onclick="app.repairAndReload()">🛠️ 界面异常？一键修复（不删数据）</button>
+    <button class="btn btn-outline btn-sm" onclick="app.repairAndReload()"><span data-icon="wrench" data-icon-size="16"></span> 界面异常？一键修复（不删数据）</button>
   </div>
 </div>
 <div id="bottom-nav"></div>
@@ -68,6 +85,7 @@
 <script src="js/data/kpoints.js"></script>
 <script src="js/store.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/icons.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/app.js"></script>
 <script>
@@ -77,6 +95,17 @@
     const store = J1Store, E = J1Engine;
     const today = E.date.today();
     document.getElementById('today-cn').textContent = app.formatDate(today);
+
+    // feed 更新信息
+    const feedMeta = document.getElementById('feed-meta');
+    if (store.meta.lastFeedAt) {
+      const t = new Date(store.meta.lastFeedAt);
+      const when = (t.getMonth() + 1) + '/' + t.getDate() + ' ' + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+      feedMeta.textContent = 'AI 最近更新：' + when + '（第 ' + (store.meta.lastFeedVersion || 0) + ' 次投放）';
+      feedMeta.style.color = 'var(--brand)';
+    } else {
+      feedMeta.textContent = '还没有投放记录——现在就可以发第一张试卷照片试试';
+    }
 
     const prog = E.computeProgress(store, today);
 
@@ -105,12 +134,12 @@
     document.getElementById('baseline-tip').textContent =
       '底线 ' + Math.round(baseline * 100) + '%：达到即算稳，不追求满分';
 
-    // 月目标列表
+    // 月目标列表（AI 维护，只读）
     const goalBox = document.getElementById('goal-list');
     if (prog.goals.length === 0) {
-      goalBox.innerHTML = '<div class="empty-state"><div class="empty-icon">🎯</div>' +
+      goalBox.innerHTML = '<div class="empty-state"><div class="empty-icon"><span data-icon="target" data-icon-size="40"></span></div>' +
         '<div class="text-sm">还没有月目标</div>' +
-        '<a href="goals.html" class="btn btn-primary btn-sm mt-3 inline-flex">去定第一个月目标</a></div>';
+        '<div class="text-xs mt-1">把最近一张试卷照片发到 WorkBuddy 对话里，AI 会根据错题自动定目标、拆到每天</div></div>';
     } else {
       goalBox.innerHTML = prog.goals.map(g => {
         const goal = g.goal;
@@ -125,12 +154,12 @@
         } else {
           valueText = '进度 ' + Math.round(g.progress * 100) + '%';
         }
-        return '<a href="goals.html" style="text-decoration:none;display:block;margin-bottom:12px;">' +
+        return '<div style="margin-bottom:12px;">' +
           '<div class="flex items-center justify-between mb-1">' +
           '<div class="flex items-center gap-2">' + app.subjectTag(goal.subject) +
           '<span class="text-sm font-semibold" style="color:var(--text-strong);">' + app.escapeHtml(goal.title) + '</span></div>' + devTag + '</div>' +
           app.progressBar(g.progress) +
-          '<div class="text-xs mt-1" style="color:var(--muted);">' + valueText + '</div></a>';
+          '<div class="text-xs mt-1" style="color:var(--muted);">' + valueText + '</div></div>';
       }).join('');
     }
 
@@ -148,6 +177,28 @@
     } else {
       document.getElementById('chart-week').parentElement.innerHTML =
         '<div class="empty-state text-xs">图表暂不可用（离线），数据不受影响</div>';
+    }
+
+    // 考试分数趋势（时间正序，百分制）
+    const examSorted = store.exams.slice().sort((a, b) => a.date < b.date ? -1 : 1);
+    const examTxt = document.getElementById('exam-trend-text');
+    if (J1Charts.available() && examSorted.length) {
+      J1Charts.examTrend('exam', document.getElementById('chart-exam'),
+        examSorted.map(e => e.date.slice(5)),
+        examSorted.map(e => Math.round(e.score / (e.fullScore || 100) * 100)));
+      if (examSorted.length >= 2) {
+        const a = examSorted[examSorted.length - 2], b = examSorted[examSorted.length - 1];
+        const diff = Math.round((b.score / (b.fullScore || 100) - a.score / (a.fullScore || 100)) * 100);
+        examTxt.textContent = '最近一次 vs 上一次：' + (diff > 0 ? '进步 ' + diff + ' 个百分点' :
+          diff === 0 ? '持平，稳住了' : '回落 ' + (-diff) + ' 个百分点，看看错题卡在哪');
+        examTxt.style.color = diff > 0 ? 'var(--success)' : diff === 0 ? 'var(--muted)' : 'var(--warning)';
+      } else {
+        examTxt.textContent = '只跟自己比，不比排名';
+      }
+    } else {
+      document.getElementById('chart-exam').parentElement.innerHTML =
+        '<div class="empty-state text-xs" style="padding:24px 0;">' +
+        (examSorted.length ? '图表暂不可用（离线）' : '还没有考试记录——考试卷拍给 AI 就会出现在这里') + '</div>';
     }
 
     // 错题科目分布
@@ -193,7 +244,7 @@
       const kmap = {};
       store.getKpoints(true).forEach(k => { kmap[k.id] = k; });
       const t0 = tops[0], k0 = kmap[t0.kpointId];
-      items.push({ cls: '', text: '最薄弱：' + (k0 ? k0.name : t0.kpointId) + '（' + t0.mistakeCount + ' 题错题）', link: 'plan.html', linkText: '生成补学计划' });
+      items.push({ cls: '', text: '最薄弱：' + (k0 ? k0.name : t0.kpointId) + '（' + t0.mistakeCount + ' 题错题）', link: 'plan.html', linkText: '看补学计划' });
     }
     // 备份提醒
     const lastExp = store.meta.lastExportAt;
@@ -202,27 +253,29 @@
     }
     const attBox = document.getElementById('attention-list');
     attBox.innerHTML = items.length === 0
-      ? '<div class="text-sm text-center py-3" style="color:var(--muted);">一切正常，按自己的节奏走 👍</div>'
+      ? '<div class="text-sm text-center py-3" style="color:var(--muted);">一切正常，按自己的节奏走</div>'
       : items.map(it =>
         '<div class="attention-item ' + it.cls + '"><span>' + it.text + '</span>' +
         '<a href="' + it.link + '" class="btn btn-sm btn-ghost no-underline" style="text-decoration:none;flex-shrink:0;">' + it.linkText + '</a></div>'
       ).join('');
 
     // 快捷入口
+    const I = J1Icons;
     document.getElementById('quick-grid').innerHTML = [
-      { icon: '🎯', label: '月目标拆解', href: 'goals.html' },
-      { icon: '📝', label: '录考试', href: 'exams.html' },
-      { icon: '📕', label: '录错题', href: 'mistakes.html' },
-      { icon: '🩹', label: '诊断补学', href: 'plan.html' },
-      { icon: '📄', label: '今日待办给孩子', href: 'print.html' },
-      { icon: '🌱', label: '激励成长', href: 'growth.html' }
+      { icon: 'clipboard', label: '今日待办给孩子', href: 'print.html' },
+      { icon: 'book', label: '错题库', href: 'mistakes.html' },
+      { icon: 'target', label: '补学计划', href: 'plan.html' },
+      { icon: 'leaf', label: '激励成长', href: 'growth.html' },
+      { icon: 'clock', label: '今日勾选', href: 'tasks.html' },
+      { icon: 'settings', label: '备份修复', href: 'settings.html' }
     ].map(q =>
-      '<a class="quick-item" href="' + q.href + '"><span class="quick-icon">' + q.icon + '</span>' + q.label + '</a>'
+      '<a class="quick-item" href="' + q.href + '"><span class="quick-icon">' + I.render(q.icon, 22) + '</span>' + q.label + '</a>'
     ).join('');
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     app.injectNav();
+    J1Icons.hydrate();
     try { render(); } catch (e) {
       console.error(e);
     }

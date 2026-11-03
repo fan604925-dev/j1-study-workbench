@@ -97,6 +97,14 @@ body {
 .bottom-nav a.active { color: var(--brand); font-weight: 600; }
 .bottom-nav a .nav-icon { font-size: 20px; line-height: 1; }
 
+/* -------- 线性 SVG 图标（v2 去 emoji） -------- */
+.nav-icon svg, .quick-icon svg { display: inline-block; }
+.badge-icon svg { display: block; margin: 0 auto; }
+.empty-icon svg { display: block; margin: 0 auto 12px; }
+.del-btn svg { display: block; }
+.card-title svg { opacity: 0.85; }
+[data-icon] { display: inline-flex; align-items: center; justify-content: center; }
+
 /* -------- 页面容器 -------- */
 .page-container {
   max-width: 600px;

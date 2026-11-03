@@ -13,85 +13,39 @@
 <div class="page-container">
   <div class="sticky-header flex items-center justify-between">
     <a href="index.html" class="text-sm" style="color:var(--brand);text-decoration:none;">‹ 返回看板</a>
-    <div class="font-bold" style="color:var(--text-strong);">⚙️ 设置</div>
+    <div class="font-bold flex items-center gap-1" style="color:var(--text-strong);"><span data-icon="settings" data-icon-size="18"></span> 设置</div>
     <span class="text-sm" style="color:var(--muted);">家长专用</span>
   </div>
 
-  <!-- 孩子概况 -->
-  <div class="card">
-    <div class="card-title">👶 孩子概况</div>
-    <label class="form-label">称呼</label>
-    <input class="form-input" id="c-name" type="text">
-    <label class="form-label">年级</label>
-    <input class="form-input" id="c-grade" type="text">
-    <label class="form-label">最弱科目</label>
-    <select class="form-input" id="c-weak">
-      <option value="math">数学</option><option value="chinese">语文</option><option value="english">英语</option>
-    </select>
-    <label class="form-label">备注（作息/特殊情况）</label>
-    <textarea class="form-input" id="c-note" rows="2"></textarea>
-    <button class="btn btn-primary btn-sm mt-3" onclick="saveChild()">保存</button>
-  </div>
-
-  <!-- 节奏参数 -->
-  <div class="card">
-    <div class="card-title">⏱️ 节奏参数</div>
-    <label class="form-label">每日完成底线：<span id="v-baseline"></span></label>
-    <input type="range" id="s-baseline" min="30" max="90" step="5" style="width:100%;">
-    <div class="form-row">
-      <div><label class="form-label">每日待办上限（项）</label>
-        <input class="form-input" id="s-maxtodos" type="number" min="1" max="8"></div>
-      <div><label class="form-label">每日总时长上限（分钟）</label>
-        <input class="form-input" id="s-maxminutes" type="number" min="15" max="180" step="5"></div>
+  <div class="card" style="border-left:3px solid var(--brand);">
+    <div class="text-xs" style="color:var(--muted);line-height:1.7;">
+      孩子概况、学习节奏、目标与计划等参数由 AI 根据你发来的材料自动维护；要调整时，在 WorkBuddy 对话里说一句就行（如「番茄钟改成 20 分钟」「最近数学重点补计算」）。
     </div>
-    <div class="form-row">
-      <div><label class="form-label">番茄钟（分钟）</label>
-        <input class="form-input" id="s-pomo" type="number" min="10" max="45" step="5"></div>
-      <div><label class="form-label">顺延上限（次，超过转停滞）</label>
-        <input class="form-input" id="s-carry" type="number" min="1" max="7"></div>
-    </div>
-    <label class="form-label">休息日（不排新任务）</label>
-    <div class="chip-row scroll-x" id="rest-chips"></div>
-    <button class="btn btn-primary btn-sm mt-3" onclick="saveParams()">保存参数</button>
-  </div>
-
-  <!-- 知识点图谱 -->
-  <div class="card">
-    <div class="card-title"><span>🗺️ 知识点图谱</span>
-      <button class="btn btn-sm btn-ghost" onclick="toggleAddKpoint()">＋ 自定义知识点</button></div>
-    <div class="text-xs mb-2" style="color:var(--muted);">内置初一上三科知识点，可停用；每个知识点都带补学处方（怎么补、练什么、什么算掌握）</div>
-    <div id="add-kpoint-form" style="display:none;" class="mb-3 p-3 rounded-xl" >
-      <label class="form-label">科目</label>
-      <select class="form-input" id="k-subject">
-        <option value="math">数学</option><option value="chinese">语文</option><option value="english">英语</option>
-      </select>
-      <label class="form-label">章节（如：第一章 有理数）</label>
-      <input class="form-input" id="k-chapter" type="text">
-      <label class="form-label">知识点名称</label>
-      <input class="form-input" id="k-name" type="text">
-      <label class="form-label">怎么补（微讲内容，一句话）</label>
-      <input class="form-input" id="k-micro" type="text">
-      <button class="btn btn-primary btn-sm mt-3" onclick="addKpoint()">添加</button>
-    </div>
-    <div id="kpoint-list"></div>
   </div>
 
   <!-- 数据管理 -->
   <div class="card">
-    <div class="card-title">💾 数据管理</div>
+    <div class="card-title flex items-center gap-1"><span data-icon="archive" data-icon-size="16"></span> 数据管理</div>
     <div class="text-xs mb-2" id="backup-tip" style="color:var(--muted);"></div>
     <div class="flex gap-2 flex-wrap">
-      <button class="btn btn-primary btn-sm" onclick="exportData()">📤 导出备份 JSON</button>
-      <label class="btn btn-outline btn-sm" style="cursor:pointer;">📥 导入备份
+      <button class="btn btn-primary btn-sm flex items-center gap-1" onclick="exportData()"><span data-icon="copy" data-icon-size="14"></span> 导出备份 JSON</button>
+      <label class="btn btn-outline btn-sm flex items-center gap-1" style="cursor:pointer;"><span data-icon="download" data-icon-size="14"></span> 导入备份
         <input type="file" accept=".json" style="display:none;" onchange="importData(event)"></label>
-      <button class="btn btn-outline btn-sm" onclick="app.repairAndReload()">🛠️ 一键修复（不删数据）</button>
-      <button class="btn btn-danger btn-sm" onclick="resetAll()">🗑️ 重置全部数据</button>
+      <button class="btn btn-outline btn-sm flex items-center gap-1" onclick="app.repairAndReload()"><span data-icon="wrench" data-icon-size="14"></span> 一键修复（不删数据）</button>
+      <button class="btn btn-danger btn-sm flex items-center gap-1" onclick="resetAll()"><span data-icon="trash" data-icon-size="14"></span> 重置全部数据</button>
     </div>
   </div>
 
+  <!-- 知识点图谱（只读查看） -->
   <div class="card">
-    <div class="card-title">ℹ️ 版本</div>
-    <div class="text-xs" id="version-info" style="color:var(--muted);"></div>
+    <div class="card-title flex items-center gap-1"><span data-icon="read" data-icon-size="16"></span> 知识点图谱</div>
+    <div class="text-xs mb-2" style="color:var(--muted);">内置初一上三科知识点（含补学处方），由 AI 在归类错题时使用；需要补充时在对话里说一句</div>
+    <div id="kpoint-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title flex items-center gap-1"><span data-icon="eye" data-icon-size="16"></span> 版本与同步</div>
+    <div class="text-xs" id="version-info" style="color:var(--muted);line-height:1.8;"></div>
   </div>
 </div>
 <div id="bottom-nav"></div>
@@ -99,34 +53,13 @@
 <script src="js/data/kpoints.js"></script>
 <script src="js/store.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/icons.js"></script>
 <script src="js/app.js"></script>
 <script>
 (function () {
   'use strict';
-  const restDays = [0, 1, 2, 3, 4, 5, 6];
-  const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-  let restSel = [];
 
   function render() {
-    const s = J1Store.settings;
-    document.getElementById('c-name').value = s.child.name;
-    document.getElementById('c-grade').value = s.child.grade;
-    document.getElementById('c-weak').value = s.child.weakSubject;
-    document.getElementById('c-note').value = s.child.note || '';
-
-    const bl = document.getElementById('s-baseline');
-    bl.value = Math.round(s.completionBaseline * 100);
-    document.getElementById('v-baseline').textContent = Math.round(s.completionBaseline * 100) + '%（达到即算稳）';
-    document.getElementById('s-maxtodos').value = s.dailyMaxTodos;
-    document.getElementById('s-maxminutes').value = s.dailyMaxMinutes;
-    document.getElementById('s-pomo').value = s.pomodoroMinutes;
-    document.getElementById('s-carry').value = s.carryOverMax;
-
-    restSel = (s.restDays || []).slice();
-    document.getElementById('rest-chips').innerHTML = dayNames.map((n, i) =>
-      '<span class="chip ' + (restSel.indexOf(i) >= 0 ? 'active' : '') + '" onclick="toggleRest(' + i + ')">' + n + (restSel.indexOf(i) >= 0 ? '·休' : '') + '</span>'
-    ).join('');
-
     renderKpoints();
     renderVersion();
   }
@@ -139,24 +72,22 @@
       if (!bySubj[k.subject]) bySubj[k.subject] = [];
       bySubj[k.subject].push(k);
     });
-    const delSet = new Set(J1Store.deletedKpointIds || []);
     let html = '';
     Object.keys(bySubj).forEach(subj => {
       html += '<div class="font-bold text-sm mt-3 mb-1">' + app.subjectName(subj) + '（' + bySubj[subj].length + ' 点）</div>';
       bySubj[subj].forEach(k => {
-        const disabled = delSet.has(k.id) || k.enabled === false;
+        const st = J1Store.kpointStates[k.id];
+        const disabled = k.enabled === false;
         html += '<details class="mb-1" style="opacity:' + (disabled ? 0.5 : 1) + ';">' +
-          '<summary class="text-sm py-1" style="cursor:pointer;">' + (k.custom ? '✏️ ' : '') + app.escapeHtml(k.name) +
+          '<summary class="text-sm py-1" style="cursor:pointer;">' + app.escapeHtml(k.name) +
           ' <span class="text-xs" style="color:var(--muted);">' + app.escapeHtml(k.chapter) + '</span>' +
-          (disabled ? '（已停用）' : '') + '</summary>' +
+          (st && st.lit ? ' <span class="tag" style="background:#eafaf0;color:#166534;">已点亮</span>' : '') +
+          (disabled ? '（未启用）' : '') + '</summary>' +
           '<div class="text-xs pl-4 py-1" style="color:var(--muted);">' +
           '<div>微讲：' + app.escapeHtml(k.prescription.microLesson) + '</div>' +
           '<div>练习：' + app.escapeHtml(k.prescription.practiceTypes.join(' / ')) + '</div>' +
           '<div>掌握标准：' + app.escapeHtml(k.prescription.masteryCriteria) + '</div>' +
           '<div>预计 ' + k.prescription.estMinutes + ' 分钟</div></div>' +
-          (disabled
-            ? '<button class="btn btn-sm btn-outline ml-4 mb-2" onclick="enableKp(\'' + k.id + '\')">启用</button>'
-            : '<button class="btn btn-sm btn-outline ml-4 mb-2" onclick="disableKp(\'' + k.id + '\')">停用</button>') +
           '</details>';
       });
     });
@@ -164,74 +95,20 @@
   }
 
   function renderVersion() {
+    const meta = J1Store.meta;
+    let feedInfo = '还没有同步过 AI 数据';
+    if (meta.lastFeedAt) {
+      const t = new Date(meta.lastFeedAt);
+      feedInfo = '上次同步：' + (t.getMonth() + 1) + '/' + t.getDate() + '（第 ' + (meta.lastFeedVersion || 0) + ' 次）';
+    }
     document.getElementById('version-info').textContent =
-      '数据版本 ' + J1Constants.DATA_VERSION + ' · 缓存版本 j1-v1 · 数据跟着链接走：' +
-      '换链接/换手机前请先导出备份再导入。';
+      '数据版本 ' + J1Constants.DATA_VERSION + ' · 缓存版本 j1-v2 · ' + feedInfo + '。' +
+      '数据跟着链接走：换链接/换手机前请先导出备份再导入。';
     const last = J1Store.meta.lastExportAt;
     document.getElementById('backup-tip').textContent = last
       ? '上次备份：' + new Date(last).toLocaleDateString('zh-CN')
       : '还没有导出过备份，建议每周导出一次';
   }
-
-  window.toggleRest = function (i) {
-    const idx = restSel.indexOf(i);
-    if (idx >= 0) restSel.splice(idx, 1); else restSel.push(i);
-    document.getElementById('rest-chips').children[i].classList.toggle('active');
-    document.getElementById('rest-chips').children[i].textContent = dayNames[i] + (restSel.indexOf(i) >= 0 ? '·休' : '');
-  };
-
-  window.saveChild = function () {
-    J1Store.settings.child = {
-      name: document.getElementById('c-name').value.trim() || '哥哥',
-      grade: document.getElementById('c-grade').value.trim() || '初一上',
-      weakSubject: document.getElementById('c-weak').value,
-      note: document.getElementById('c-note').value.trim()
-    };
-    J1Store.save();
-    app.toast('已保存');
-  };
-
-  window.saveParams = function () {
-    const s = J1Store.settings;
-    s.completionBaseline = Number(document.getElementById('s-baseline').value) / 100;
-    document.getElementById('v-baseline').textContent = Math.round(s.completionBaseline * 100) + '%（达到即算稳）';
-    s.dailyMaxTodos = Math.max(1, Number(document.getElementById('s-maxtodos').value) || 3);
-    s.dailyMaxMinutes = Math.max(15, Number(document.getElementById('s-maxminutes').value) || 45);
-    s.pomodoroMinutes = Math.max(10, Number(document.getElementById('s-pomo').value) || 15);
-    s.carryOverMax = Math.max(1, Number(document.getElementById('s-carry').value) || 3);
-    s.restDays = restSel.slice();
-    J1Store.save();
-    app.toast('参数已保存');
-  };
-
-  window.toggleAddKpoint = function () {
-    const f = document.getElementById('add-kpoint-form');
-    f.style.display = f.style.display === 'none' ? 'block' : 'none';
-  };
-
-  window.addKpoint = function () {
-    const name = document.getElementById('k-name').value.trim();
-    if (!name) { app.toast('请填知识点名称'); return; }
-    J1Store.addKpoint({
-      subject: document.getElementById('k-subject').value,
-      chapter: document.getElementById('k-chapter').value.trim() || '自定义',
-      name: name,
-      keywords: [name],
-      prescription: {
-        microLesson: document.getElementById('k-micro').value.trim() || '回顾课本例题',
-        practiceTypes: ['课本练习 6 题'],
-        masteryCriteria: '连续 2 次对 9 成',
-        estMinutes: 15, reviewRhythm: [1, 3, 7], commonCauses: ['concept']
-      }
-    });
-    document.getElementById('k-name').value = '';
-    document.getElementById('k-micro').value = '';
-    renderKpoints();
-    app.toast('已添加自定义知识点');
-  };
-
-  window.disableKp = function (id) { J1Store.disableKpoint(id); renderKpoints(); app.toast('已停用'); };
-  window.enableKp = function (id) { J1Store.enableKpoint(id); renderKpoints(); app.toast('已启用'); };
 
   window.exportData = function () {
     const data = J1Store.exportData();
@@ -264,7 +141,7 @@
   };
 
   window.resetAll = function () {
-    if (!app.confirm('⚠️ 重置会清空全部目标/待办/错题/考试记录（激励记录也会清空）。\n建议先「导出备份」。确定重置吗？')) return;
+    if (!app.confirm('重置会清空全部目标/待办/错题/考试记录（激励记录也会清空）。\n建议先「导出备份」。确定重置吗？')) return;
     if (!app.confirm('再次确认：真的要清空所有数据吗？')) return;
     J1Store.clearData();
     location.reload();
@@ -272,6 +149,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     app.injectNav();
+    J1Icons.hydrate();
     try { render(); } catch (e) { console.error(e); }
   });
 })();

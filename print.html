@@ -11,8 +11,8 @@
 <body>
 <div class="page-container">
   <div class="no-print flex gap-2 mb-3">
-    <button class="btn btn-primary btn-sm" onclick="copyText()">📋 复制纯文本</button>
-    <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ 打印</button>
+    <button class="btn btn-primary btn-sm flex items-center gap-1" onclick="copyText()"><span data-icon="copy" data-icon-size="14"></span> 复制纯文本</button>
+    <button class="btn btn-outline btn-sm flex items-center gap-1" onclick="window.print()"><span data-icon="print" data-icon-size="14"></span> 打印</button>
   </div>
 
   <div class="card print-todo">
@@ -28,6 +28,7 @@
 <script src="js/data/kpoints.js"></script>
 <script src="js/store.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/icons.js"></script>
 <script src="js/app.js"></script>
 <script>
 (function () {
@@ -44,8 +45,8 @@
     const lines = ['今日待办 · ' + app.formatDate(date), ''];
     const listBox = document.getElementById('p-list');
     if (pending.length === 0) {
-      listBox.textContent = '今天的都做完了，好好休息 🎉';
-      lines.push('今天的都做完了，好好休息 🎉');
+      listBox.textContent = '今天的都做完了，好好休息';
+      lines.push('今天的都做完了，好好休息');
     } else {
       const items = pending.map(t => {
         const line = '□ ' + t.title + '（约 ' + (t.estMinutes || 15) + ' 分钟）';
@@ -88,6 +89,7 @@
   };
 
   document.addEventListener('DOMContentLoaded', function () {
+    if (window.J1Icons) J1Icons.hydrate();
     try { render(); } catch (e) { console.error(e); }
   });
 })();

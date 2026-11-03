@@ -216,9 +216,9 @@
   global.J1KPOINTS = {
     version: '1.0',
     subjects: [
-      { id: 'math', name: '数学', icon: '🔢', textbook: '人教版·七年级上册', color: '#2f80ed' },
-      { id: 'chinese', name: '语文', icon: '📖', textbook: '部编版·七年级上册', color: '#f59e0b' },
-      { id: 'english', name: '英语', icon: '🔤', textbook: '人教版·七年级上册', color: '#22c55e' }
+      { id: 'math', name: '数学', icon: 'math', textbook: '人教版·七年级上册', color: '#2f80ed' },
+      { id: 'chinese', name: '语文', icon: 'chinese', textbook: '部编版·七年级上册', color: '#f59e0b' },
+      { id: 'english', name: '英语', icon: 'english', textbook: '人教版·七年级上册', color: '#22c55e' }
     ],
     kpoints: kpoints,
     causes: [

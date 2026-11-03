@@ -18,9 +18,8 @@
       <button class="btn btn-sm btn-outline" onclick="shiftDay(1)">›</button>
     </div>
     <div class="mt-2 flex items-center gap-2 flex-wrap">
-      <a class="btn btn-sm btn-ghost" href="print.html" style="text-decoration:none;">📄 给孩子看 / 打印</a>
-      <button class="btn btn-sm btn-outline" onclick="copyToday()">📋 复制待办</button>
-      <button class="btn btn-sm btn-primary" onclick="openAddModal()">＋ 临时任务</button>
+      <a class="btn btn-sm btn-ghost" href="print.html" style="text-decoration:none;"><span data-icon="print" data-icon-size="14"></span> 给孩子看 / 打印</a>
+      <button class="btn btn-sm btn-outline" onclick="copyToday()"><span data-icon="copy" data-icon-size="14"></span> 复制待办</button>
     </div>
   </div>
 
@@ -31,7 +30,7 @@
 
   <!-- 番茄钟 -->
   <div class="card">
-    <div class="card-title">🍅 番茄钟</div>
+    <div class="card-title">番茄钟</div>
     <div class="pomodoro">
       <div class="pomo-time" id="pomo-time">15:00</div>
       <div class="flex gap-2 justify-center mt-2">
@@ -44,7 +43,7 @@
 
   <!-- 习惯打卡 -->
   <div class="card">
-    <div class="card-title">✅ 习惯打卡（今天）</div>
+    <div class="card-title">习惯打卡（今天）</div>
     <div class="grid grid-cols-3 gap-2">
       <button class="btn btn-outline btn-sm" onclick="habit('checkin')" id="hb-checkin">坐下开始</button>
       <button class="btn btn-outline btn-sm" onclick="habit('ask')" id="hb-ask">主动提问</button>
@@ -55,34 +54,10 @@
 </div>
 <div id="bottom-nav"></div>
 
-<!-- 添加任务弹窗 -->
-<div class="modal-overlay" id="add-modal">
-  <div class="modal-content">
-    <div class="font-bold text-base mb-2">添加今日临时任务</div>
-    <label class="form-label">科目</label>
-    <select class="form-input" id="a-subject">
-      <option value="math">数学</option><option value="chinese">语文</option>
-      <option value="english">英语</option><option value="other">其他</option>
-    </select>
-    <label class="form-label">任务</label>
-    <input class="form-input" id="a-title" type="text" placeholder="如：数学计算 10 题">
-    <div class="form-row">
-      <div><label class="form-label">数量</label><input class="form-input" id="a-value" type="number" min="1" value="1"></div>
-      <div><label class="form-label">预计分钟</label><input class="form-input" id="a-minutes" type="number" min="5" max="60" step="5" value="15"></div>
-    </div>
-    <label class="form-label" style="display:flex;align-items:center;gap:8px;">
-      <input type="checkbox" id="a-hard"> 启动难（需要帮他开个头）
-    </label>
-    <div class="flex gap-2 mt-4">
-      <button class="btn btn-primary flex-1" onclick="addTodo()">保存</button>
-      <button class="btn btn-outline" onclick="document.getElementById('add-modal').classList.remove('active')">取消</button>
-    </div>
-  </div>
-</div>
-
 <script src="js/data/kpoints.js"></script>
 <script src="js/store.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/icons.js"></script>
 <script src="js/app.js"></script>
 <script>
 (function () {
@@ -98,38 +73,39 @@
     const s = J1Store.settings;
 
     // 负载卡
+    const I = J1Icons;
     const active = list.filter(t => t.status !== 'skipped');
     const totalMin = active.reduce((a, t) => a + (t.estMinutes || 0), 0);
     const overload = active.length > s.dailyMaxTodos || totalMin > s.dailyMaxMinutes;
     document.getElementById('load-card').innerHTML =
-      '<div class="card-title">📊 今日负载</div>' +
+      '<div class="card-title">今日负载</div>' +
       '<div class="flex items-center justify-between text-sm mb-2">' +
       '<span>' + active.length + ' / ' + s.dailyMaxTodos + ' 项</span>' +
       '<span>' + totalMin + ' / ' + s.dailyMaxMinutes + ' 分钟</span>' +
       '<span style="color:' + (overload ? 'var(--danger)' : 'var(--success)') + ';">' +
-      (overload ? '排得太满 ⚠️' : '节奏合适 ✓') + '</span></div>' +
+      (overload ? '排得太满' : '节奏合适') + '</span></div>' +
       app.progressBar(E.completionRate(list));
 
     // 停滞卡
     const stag = list.filter(t => t.stagnant && t.status === 'pending');
     document.getElementById('stagnant-box').innerHTML = stag.map(t =>
-      '<div class="stagnant-card"><div class="stagnant-title">⛔ 停滞：' + app.escapeHtml(t.title) +
+      '<div class="stagnant-card"><div class="stagnant-title">停滞：' + app.escapeHtml(t.title) +
       '（顺延 ' + t.carryCount + ' 次未完成）</div>' +
       '<div class="text-xs mb-2" style="color:#92400e;">别硬推，选一个办法：</div>' +
       '<div class="stagnant-actions">' +
-      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'split\')">✂️ 拆小（减半）</button>' +
-      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'weekend\')">📅 改到周末</button>' +
-      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'reduce\')">📉 降量</button>' +
-      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'drop\')">🗑️ 放弃这题</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'split\')">拆小（减半）</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'weekend\')">改到周末</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'reduce\')">降量</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="disposeStagnant(\'' + t.id + '\',\'drop\')">放弃这题</button>' +
       '</div></div>'
     ).join('');
 
     // 待办列表
     const box = document.getElementById('todo-list');
     if (list.length === 0) {
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>' +
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + I.render('clipboard', 40) + '</div>' +
         '<div class="text-sm">今天还没有待办</div>' +
-        '<div class="text-xs mt-1">去「目标」页把周任务拆到每日，或点上方＋添加</div></div>';
+        '<div class="text-xs mt-1">把试卷照片发到 WorkBuddy 对话里，AI 会排好每日任务</div></div>';
     } else {
       const order = { stagnant: 0, pending: 1, partial: 2, completed: 3, skipped: 4 };
       const sorted = list.slice().sort((a, b) => (order[a.status] - order[b.status]) ||
@@ -152,7 +128,7 @@
           '<div class="flex flex-col gap-1">' +
           (t.status !== 'completed' ? '<button class="btn btn-sm btn-outline" onclick="partialTodo(\'' + t.id + '\')">半</button>' : '') +
           (t.status === 'pending' ? '<button class="btn btn-sm btn-outline" onclick="skipTodo(\'' + t.id + '\')">跳</button>' : '') +
-          '<button class="del-btn" onclick="delTodo(\'' + t.id + '\')">🗑️</button></div>' +
+          '<button class="del-btn" onclick="delTodo(\'' + t.id + '\')" aria-label="删除">' + I.render('trash', 16) + '</button></div>' +
           '</div>';
       }).join('');
     }
@@ -169,7 +145,7 @@
         else if (light) groups.C.push(t);
         else groups.B.push(t);
       });
-      let html = '<div class="card-title">🎲 今天的顺序你选（A/B/C）</div>' +
+      let html = '<div class="card-title">今天的顺序你选（A/B/C）</div>' +
         '<div class="text-xs mb-2" style="color:var(--muted);">问他：「你想先做 A 还是 B？」选完记下来</div>';
       ['A', 'B', 'C'].forEach(k => {
         if (groups[k].length === 0) return;
@@ -205,7 +181,7 @@
       J1Store.updateTodo(id, { status: 'completed', completedAt: E.date.today(), doneValue: t.targetValue });
       if (t.hardToStart) J1Store.addHabitEvent('hard', id, '');
       const fresh = J1Store.evaluateBadges();
-      if (fresh.length) app.toast('🏅 新徽章：' + fresh.map(b => b.name).join('、'));
+      if (fresh.length) app.toast('新徽章：' + fresh.map(b => b.name).join('、'));
     }
     render();
   };
@@ -270,31 +246,9 @@
   window.habit = function (type) {
     J1Store.addHabitEvent(type, null, '');
     const fresh = J1Store.evaluateBadges();
-    if (fresh.length) app.toast('🏅 新徽章：' + fresh.map(b => b.name).join('、'));
+    if (fresh.length) app.toast('新徽章：' + fresh.map(b => b.name).join('、'));
     else app.toast('已记录');
     render();
-  };
-
-  /* ---------- 临时任务 ---------- */
-  window.openAddModal = function () {
-    document.getElementById('add-modal').classList.add('active');
-  };
-  window.addTodo = function () {
-    const title = document.getElementById('a-title').value.trim();
-    if (!title) { app.toast('填一下任务名'); return; }
-    J1Store.addTodo({
-      date: curDate,
-      subject: document.getElementById('a-subject').value,
-      title: title + ' ' + (document.getElementById('a-value').value || 1) + ' 个',
-      targetValue: Number(document.getElementById('a-value').value) || 1,
-      estMinutes: Number(document.getElementById('a-minutes').value) || 15,
-      hardToStart: document.getElementById('a-hard').checked,
-      source: 'manual'
-    });
-    document.getElementById('add-modal').classList.remove('active');
-    document.getElementById('a-title').value = '';
-    render();
-    app.toast('已添加');
   };
 
   /* ---------- 复制待办 ---------- */
@@ -327,7 +281,7 @@
         clearInterval(pomoTimer); pomoTimer = null;
         document.getElementById('pomo-btn').textContent = '开始';
         J1Store.addHabitEvent('checkin', null, '番茄钟完成');
-        app.toast('🍅 15 分钟到！休息 5 分钟，起来喝口水');
+        app.toast('15 分钟到！休息 5 分钟，起来喝口水');
       }
     }, 1000);
   };
@@ -345,6 +299,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     app.injectNav();
+    J1Icons.hydrate();
     try { render(); } catch (e) { console.error(e); }
   });
 })();

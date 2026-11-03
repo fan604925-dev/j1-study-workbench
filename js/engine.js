@@ -491,19 +491,20 @@
   }
 
   /* ==================== 十、徽章与连续打卡 ==================== */
+  // icon 为 js/icons.js 线性图标名
   const BADGES = [
-    { id: 'redo_king', name: '错题重做王', icon: '🔁', desc: '累计「重做对」≥ 10 题', type: 'redoRight', threshold: 10 },
-    { id: 'streak_3', name: '三日启动', icon: '🌱', desc: '连续打卡 ≥ 3 天', type: 'streak', threshold: 3 },
-    { id: 'streak_7', name: '七日连续', icon: '📅', desc: '连续打卡 ≥ 7 天', type: 'streak', threshold: 7 },
-    { id: 'streak_14', name: '十四日稳住', icon: '🔥', desc: '连续打卡 ≥ 14 天', type: 'streak', threshold: 14 },
-    { id: 'streak_30', name: '三十日习惯', icon: '🏔', desc: '连续打卡 ≥ 30 天', type: 'streak', threshold: 30 },
-    { id: 'asker', name: '主动提问', icon: '🙋', desc: '主动提问 ≥ 5 次', type: 'ask', threshold: 5 },
-    { id: 'hard_climber', name: '啃硬骨头', icon: '🧗', desc: '完成「启动难」待办 ≥ 5 次', type: 'hardDone', threshold: 5 },
-    { id: 'math_steps', name: '数学小步', icon: '🧮', desc: '数学知识点点亮 ≥ 3 个', type: 'lit', threshold: 3 },
-    { id: 'star_week', name: '点亮之星', icon: '🌟', desc: '单周点亮 ≥ 2 个知识点', type: 'weekLit', threshold: 2 },
-    { id: 'explain', name: '讲给你听', icon: '📖', desc: '讲一道题给妈妈听 ≥ 3 次', type: 'explain', threshold: 3 },
-    { id: 'self_correct', name: '自己找错', icon: '🔍', desc: '自己发现并订正 ≥ 3 次', type: 'selfCorrect', threshold: 3 },
-    { id: 'stagnant_clear', name: '停滞清零', icon: '🧹', desc: '把当日停滞项全部处置完 1 次', type: 'stagnantClear', threshold: 1 }
+    { id: 'redo_king', name: '错题重做王', icon: 'redo', desc: '累计「重做对」≥ 10 题', type: 'redoRight', threshold: 10 },
+    { id: 'streak_3', name: '三日启动', icon: 'seed', desc: '连续打卡 ≥ 3 天', type: 'streak', threshold: 3 },
+    { id: 'streak_7', name: '七日连续', icon: 'calendar', desc: '连续打卡 ≥ 7 天', type: 'streak', threshold: 7 },
+    { id: 'streak_14', name: '十四日稳住', icon: 'fire', desc: '连续打卡 ≥ 14 天', type: 'streak', threshold: 14 },
+    { id: 'streak_30', name: '三十日习惯', icon: 'mountain', desc: '连续打卡 ≥ 30 天', type: 'streak', threshold: 30 },
+    { id: 'asker', name: '主动提问', icon: 'hand', desc: '主动提问 ≥ 5 次', type: 'ask', threshold: 5 },
+    { id: 'hard_climber', name: '啃硬骨头', icon: 'climb', desc: '完成「启动难」待办 ≥ 5 次', type: 'hardDone', threshold: 5 },
+    { id: 'math_steps', name: '数学小步', icon: 'calc', desc: '数学知识点点亮 ≥ 3 个', type: 'lit', threshold: 3 },
+    { id: 'star_week', name: '点亮之星', icon: 'star', desc: '单周点亮 ≥ 2 个知识点', type: 'weekLit', threshold: 2 },
+    { id: 'explain', name: '讲给你听', icon: 'read', desc: '讲一道题给妈妈听 ≥ 3 次', type: 'explain', threshold: 3 },
+    { id: 'self_correct', name: '自己找错', icon: 'search', desc: '自己发现并订正 ≥ 3 次', type: 'selfCorrect', threshold: 3 },
+    { id: 'stagnant_clear', name: '停滞清零', icon: 'broom', desc: '把当日停滞项全部处置完 1 次', type: 'stagnantClear', threshold: 1 }
   ];
 
   function streak(habitEvents, today) {

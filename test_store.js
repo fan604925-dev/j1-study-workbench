@@ -45,7 +45,7 @@ const K = sandbox.J1Constants;
 const StoreClass = sandbox.J1StoreClass;
 
 console.log('\n== 1. 常量与前缀 ==');
-assert(K.DATA_VERSION === '1', 'DATA_VERSION 初始为 1');
+assert(K.DATA_VERSION === '2', 'DATA_VERSION 为 2（v2 feed 通道）');
 const keyVals = Object.values(K.STORAGE_KEYS);
 assert(keyVals.every(k => k.indexOf('j1_') === 0), '所有 STORAGE_KEYS 以 j1_ 开头');
 assert(keyVals.every(k => k.indexOf('ssm') < 0), '不含 ssm_ 前缀');
@@ -82,7 +82,7 @@ sandbox.localStorage._dump['j1_data_version'] = '0';
 sandbox.localStorage._dump['j1_settings'] = JSON.stringify({ child: { name: '哥哥', grade: '初一上', weakSubject: 'math' } });
 const store3 = new StoreClass();
 store3.init();
-assert(sandbox.localStorage._dump['j1_data_version'] === '1', '修复后版本号更新为 1');
+assert(sandbox.localStorage._dump['j1_data_version'] === '2', '修复后版本号更新为 2');
 assert(store3.goals.length === 1, '迁移保留用户目标');
 assert(store3.todos['2026-11-04'] && store3.todos['2026-11-04'].length === 1, '迁移保留用户待办');
 assert(store3.settings.pomodoroMinutes === 15, 'settings 补齐默认字段');
@@ -178,6 +178,86 @@ const fresh = store9.evaluateBadges('2026-11-03');
 assert(fresh.some(b => b.id === 'streak_3'), '连续 3 天解锁「三日启动」');
 const fresh2 = store9.evaluateBadges('2026-11-03');
 assert(fresh2.length === 0 || !fresh2.some(b => b.id === 'streak_3'), '徽章只追加不重复解锁');
+
+console.log('\n== 14. applyFeed（AI 注入通道）==');
+sandbox.localStorage = makeStorage();
+const sf = new StoreClass();
+sf.init();
+
+// 坏 feed：标识不对 / 缺版本
+let r = sf.applyFeed(null);
+assert(r.ok === false, '空 feed 拒绝');
+r = sf.applyFeed({ app: 'other-app', feedVersion: 1 });
+assert(r.ok === false, 'app 标识不对拒绝');
+r = sf.applyFeed({ app: 'j1-study-workbench' });
+assert(r.ok === false, '缺 feedVersion 拒绝');
+
+// v1 注入：新错题 + 考试 + 待办 + 计划 + 话术
+r = sf.applyFeed({
+  app: 'j1-study-workbench', feedVersion: 1, generatedAt: '2026-11-03T20:00:00+08:00',
+  exams: [{ id: 'e_ai_1', date: '2026-11-01', subject: 'math', type: 'unit', score: 72, fullScore: 100 }],
+  mistakes: [
+    { id: 'm_ai_1', examId: 'e_ai_1', date: '2026-11-01', subject: 'math', kpointId: 'math.rational.oporder', cause: 'concept', source: '单元测 P2 Q5', questionText: '原题：-2²×3' },
+    { id: 'm_ai_2', date: '2026-11-02', subject: 'chinese', kpointId: 'chinese.words.accumulation', cause: 'reading', source: '作业' }
+  ],
+  todos: { '2026-11-04': [{ id: 't_ai_1', date: '2026-11-04', subject: 'math', title: '有理数混合运算 6 题', estMinutes: 15, source: 'plan' }] },
+  plans: [{ id: 'p_ai_1', createdAt: '2026-11-03', status: 'active', basedOn: { topKpointIds: ['math.rational.oporder'], mistakeCount: 1, generatedBy: 'ai' }, days: [{ date: '2026-11-04', items: [{ kpointId: 'math.rational.oporder', subject: 'math', action: 'practice', minutes: 15, mistakeIds: ['m_ai_1'], title: '混合运算练习' }] }] }],
+  praiseLibrary: [{ id: 'pr_ai_1', scene: 'habit', text: '这周每天都坐下来练了。', tip: '' }]
+});
+assert(r.ok === true, 'v1 feed 应用成功');
+assert(r.applied.mistakes === 2 && r.applied.exams === 1 && r.applied.todos === 1 && r.applied.plans === 1 && r.applied.praiseLibrary === 1, '新实体计数正确');
+assert(sf.meta.lastFeedVersion === 1, 'lastFeedVersion 记录为 1');
+assert(sf.mistakes[0].reviewSchedule && sf.mistakes[0].reviewSchedule.length === 3, '新错题自动排 D1/D3/D7');
+assert(sf.mistakes[0].aiRecognized === true, 'AI 识别标记存在');
+assert(sf.exams[0].mistakeIds.indexOf('m_ai_1') >= 0, '错题自动关联考试');
+assert(sf.praiseLibrary.some(p => p.id === 'pr_ai_1'), 'AI 话术入库');
+
+// 旧版本跳过
+r = sf.applyFeed({ app: 'j1-study-workbench', feedVersion: 1, mistakes: [{ id: 'm_x', subject: 'math' }] });
+assert(r.skipped === true, '同版本 feed 跳过');
+assert(!sf.mistakes.some(m => m.id === 'm_x'), '跳过时不注入');
+
+// 本地进度 → v2 注入不覆盖
+sf.updateTodo('t_ai_1', { status: 'completed', completedAt: '2026-11-04', doneValue: 1 });
+sf.recordRedo('m_ai_1', 'right', '2026-11-04');
+r = sf.applyFeed({
+  app: 'j1-study-workbench', feedVersion: 2,
+  mistakes: [
+    { id: 'm_ai_1', kpointId: 'math.rational.power', cause: 'calc', questionText: '原题：-2²×3（修正）' },
+    { id: 'm_ai_3', subject: 'math', kpointId: 'math.equation.onestep', cause: 'method', source: '作业 P3' }
+  ],
+  todos: { '2026-11-04': [{ id: 't_ai_1', subject: 'math', title: '已被覆盖的标题' }] },
+  exams: [{ id: 'e_ai_1', score: 75 }]
+});
+assert(r.ok === true, 'v2 feed 应用成功');
+const m1 = sf.mistakes.find(m => m.id === 'm_ai_1');
+assert(m1.kpointId === 'math.rational.power' && m1.cause === 'calc', 'AI 可修正已有错题内容字段');
+assert(m1.status === 'redo_right' && m1.redoHistory.length === 1, '重做进度字段保留');
+const tAI1 = sf.getTodo('t_ai_1');
+assert(tAI1.status === 'completed' && tAI1.title === '有理数混合运算 6 题', '已完成待办不被覆盖（进度与内容都保留）');
+assert(r.applied.mistakes === 1, '只有新错题计数');
+const e1 = sf.exams.find(e => e.id === 'e_ai_1');
+assert(e1.score === 75 && e1.mistakeIds.length === 1, 'AI 可修正分数且关联保留');
+
+// kpointStates：AI 更新 mastery，点亮不可逆
+sf.getKpointState('math.rational.power').lit = true;
+sf.getKpointState('math.rational.power').litAt = '2026-11-01';
+r = sf.applyFeed({
+  app: 'j1-study-workbench', feedVersion: 3,
+  kpointStates: { 'math.rational.power': { mastery: 0.9, lit: false, litAt: null } }
+});
+const ks = sf.kpointStates['math.rational.power'];
+assert(ks.mastery === 0.9 && ks.lit === true && ks.litAt === '2026-11-01', 'AI 可更新掌握度；点亮不可逆');
+
+// settings 注入
+r = sf.applyFeed({ app: 'j1-study-workbench', feedVersion: 4, settings: { pomodoroMinutes: 20 } });
+assert(sf.settings.pomodoroMinutes === 20, 'settings 注入生效');
+assert(sf.settings.completionBaseline === 0.6, '未下发字段保留默认');
+
+// 存量特权 emoji 迁移
+sf.privileges[0].icon = '🍜';
+sf._repairData();
+assert(sf.privileges[0].icon === 'noodle', 'emoji 特权图标迁移为图标名');
 
 console.log('\n========================');
 console.log('通过 ' + passed + ' / 失败 ' + failed);
