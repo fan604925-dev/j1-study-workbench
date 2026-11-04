@@ -140,6 +140,8 @@
         chinese: { label: '语文', cls: 'tag-chinese' },
         history: { label: '历史', cls: 'tag-history' },
         politics: { label: '道法', cls: 'tag-politics' },
+        biology: { label: '生物', cls: 'tag-biology' },
+        geography: { label: '地理', cls: 'tag-geography' },
         other: { label: '其他', cls: 'tag-other' }
       };
       const s = map[subject] || map.other;
@@ -157,7 +159,8 @@
     subjectName(subject) {
       return {
         math: '数学', chinese: '语文', english: '英语',
-        history: '历史', politics: '道法', other: '其他'
+        history: '历史', politics: '道法',
+        biology: '生物', geography: '地理', other: '其他'
       }[subject] || '其他';
     },
 

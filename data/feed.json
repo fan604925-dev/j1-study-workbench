@@ -1,7 +1,7 @@
 {
   "app": "j1-study-workbench",
-  "feedVersion": 3,
-  "generatedAt": "2026-11-04T08:45:00+08:00",
+  "feedVersion": 4,
+  "generatedAt": "2026-11-04T01:20:00.000Z",
   "generatedBy": "ai-pipeline",
   "settings": {
     "child": {
@@ -11,9 +11,11 @@
       "note": "牙齿矫正 + OK 镜护理中；英语是全科最大缺口（26/90），每晚保底 25-30 分钟，先补词汇再补语法"
     },
     "weakSubject": "english",
-    "dailyMaxTodos": 3,
-    "dailyMaxMinutes": 45,
-    "restDays": [0],
+    "dailyMaxTodos": 6,
+    "dailyMaxMinutes": 180,
+    "restDays": [
+      0
+    ],
     "topN": 3
   },
   "goals": [],
@@ -21,98 +23,173 @@
   "todos": {
     "2026-11-04": [
       {
-        "id": "t_p_20261104_2026-11-04_0",
-        "planId": "p_20261104",
-        "subject": "english",
-        "kpointId": "english.skill.word_memory",
-        "title": "英语：背 10 个词 — name/friend/class/school/teacher/student/book/morning/afternoon/evening（会读、会写、会译）",
+        "id": "t_sprint1104_1",
+        "date": "2026-11-04",
+        "subject": "chinese",
+        "title": "语文·默写：8首古诗+《论语十二章》+《诫子书》",
         "targetValue": 1,
-        "estMinutes": 12,
-        "hardToStart": false
+        "estMinutes": 40,
+        "hardToStart": true,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "先默再对照，只抄错的那句，不重抄全篇"
       },
       {
-        "id": "t_p_20261104_2026-11-04_1",
-        "planId": "p_20261104",
-        "subject": "english",
-        "kpointId": "english.starter.letters_phonetics",
-        "title": "英语：26 字母 + 5 个元音音标，随机抽 10 个读出来给我听",
+        "id": "t_sprint1104_2",
+        "date": "2026-11-04",
+        "subject": "biology",
+        "title": "生物·练习册P56知识梳理（填空）+ 7节课概念过一遍",
         "targetValue": 1,
-        "estMinutes": 8,
-        "hardToStart": false
+        "estMinutes": 40,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "生物的特征→环节动物，按课本目录顺序过"
       },
       {
-        "id": "t_p_20261104_2026-11-04_2",
-        "planId": "p_20261104",
+        "id": "t_sprint1104_3",
+        "date": "2026-11-04",
+        "subject": "politics",
+        "title": "道法·提纲1-7课：只背【题号+3个关键词】",
+        "targetValue": 1,
+        "estMinutes": 35,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "不背整段，明天考场自己扩写"
+      },
+      {
+        "id": "t_sprint1104_4",
+        "date": "2026-11-04",
+        "subject": "geography",
+        "title": "地理·地图册第一章翻一遍 + 练习册错题",
+        "targetValue": 1,
+        "estMinutes": 30,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "只用眼看图，不抄笔记"
+      },
+      {
+        "id": "t_sprint1104_5",
+        "date": "2026-11-04",
         "subject": "history",
-        "kpointId": "history.skill.timeline",
-        "title": "历史：背朝代顺序口诀（夏商与西周，东周分两段…），背完口述一遍",
+        "title": "历史·知识结构图第1-2页（朝代顺序）",
         "targetValue": 1,
-        "estMinutes": 10,
-        "hardToStart": false
+        "estMinutes": 15,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "今晚只扫一眼，明晚正式背"
       }
     ],
     "2026-11-05": [
       {
-        "id": "t_p_20261104_2026-11-05_0",
-        "planId": "p_20261104",
-        "subject": "english",
-        "kpointId": "english.u1.be_verb",
-        "title": "英语：be 动词口诀（我用 am、你用 are、is 跟着他她它）+ 12 题填空",
+        "id": "t_sprint1105_1",
+        "date": "2026-11-05",
+        "subject": "history",
+        "title": "历史·核心问题链1-13课 + 知识结构图（明早10:10考）",
         "targetValue": 1,
-        "estMinutes": 10,
-        "hardToStart": false
+        "estMinutes": 60,
+        "hardToStart": true,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "按13课顺序，每课只记3个要点"
       },
       {
-        "id": "t_p_20261104_2026-11-05_1",
-        "planId": "p_20261104",
+        "id": "t_sprint1105_2",
+        "date": "2026-11-05",
         "subject": "english",
-        "kpointId": "english.skill.word_memory",
-        "title": "英语：新背 10 词 — day/week/subject/lesson/Chinese/math/English/like/because/favourite，再滚动昨天 10 词",
+        "title": "英语·家教前热身：默写40个高频词 + 2个作文开头句",
         "targetValue": 1,
-        "estMinutes": 12,
-        "hardToStart": false
+        "estMinutes": 30,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "家教2小时改为口头抽查，不讲新语法"
       },
       {
-        "id": "t_p_20261104_2026-11-05_2",
-        "planId": "p_20261104",
-        "subject": "politics",
-        "kpointId": "politics.growth.middle_school",
-        "title": "道法：中学时代按「是什么·为什么·怎么做」说 3 条，说给我听",
+        "id": "t_sprint1105_3",
+        "date": "2026-11-05",
+        "subject": "math",
+        "title": "数学·整式去括号 + 合并同类项 10题热手",
         "targetValue": 1,
-        "estMinutes": 10,
-        "hardToStart": false
+        "estMinutes": 15,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "只做熟的题，找回手感，不碰新题型"
       }
     ],
     "2026-11-06": [
       {
-        "id": "t_p_20261104_2026-11-06_0",
-        "planId": "p_20261104",
+        "id": "t_sprint1106_1",
+        "date": "2026-11-06",
         "subject": "english",
-        "kpointId": "english.u2.plural",
-        "title": "英语：名词单复数规则 4 条 + 不规则 5 个，做 10 题",
+        "title": "英语考前40分钟：默写40词 + 作文开头句（8:00开考）",
         "targetValue": 1,
-        "estMinutes": 10,
-        "hardToStart": false
+        "estMinutes": 30,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "作文绝不空白，写满3句就给分"
       },
       {
-        "id": "t_p_20261104_2026-11-06_1",
-        "planId": "p_20261104",
-        "subject": "english",
-        "kpointId": "english.skill.word_memory",
-        "title": "英语：新背 10 词 — parent/room/door/window/desk/chair/board/happy/nervous/ready，滚动复习 20 词",
+        "id": "t_sprint1106_2",
+        "date": "2026-11-06",
+        "subject": "history",
+        "title": "历史考前：翻知识结构图 + 核心问题链（10:10开考）",
         "targetValue": 1,
-        "estMinutes": 12,
-        "hardToStart": false
+        "estMinutes": 20,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": ""
       },
       {
-        "id": "t_p_20261104_2026-11-06_2",
-        "planId": "p_20261104",
-        "subject": "chinese",
-        "kpointId": "chinese.classic.gushi",
-        "title": "语文：古诗默写 4 句（写完自己对照课本圈错字）",
+        "id": "t_sprint1106_3",
+        "date": "2026-11-06",
+        "subject": "math",
+        "title": "数学中午：只翻练习册错题 + 有理数符号规则（14:20开考）",
         "targetValue": 1,
-        "estMinutes": 10,
-        "hardToStart": false
+        "estMinutes": 40,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "压轴题只写第一问，不恋战"
       }
     ],
     "2026-11-07": [
@@ -450,6 +527,118 @@
       "cause": "reading",
       "questionText": "【整块归因】阅读理解三节共 40 分（51-55 表格题、56-60 故事、61-65 七选五）。全卷 26/90 反推：客观题 50 分与主观题 40 分的得分率都在三成上下，没有哪一块单独拖后腿——问题是整体词汇量和句子能力都没到线，不是技巧问题。",
       "correctAnswer": ""
+    },
+    {
+      "id": "m_20261104_m1",
+      "examId": "ex_20261010_math",
+      "date": "2026-11-04",
+      "subject": "math",
+      "kpointId": "math.algebra.monomial_poly",
+      "kpointPath": null,
+      "source": "练习册第3课时·整式",
+      "cause": "concept",
+      "questionText": "单项式 -5ab 的系数、-x²y³ 的次数（填表题）",
+      "correctAnswer": "系数 -5；次数 5",
+      "aiRecognized": true,
+      "note": "系数看数字因数含符号；次数是所有字母指数之和，别漏 y 的 3 次"
+    },
+    {
+      "id": "m_20261104_m2",
+      "examId": "ex_20261010_math",
+      "date": "2026-11-04",
+      "subject": "math",
+      "kpointId": "math.algebra.monomial_poly",
+      "kpointPath": null,
+      "source": "练习册第3课时·整式",
+      "cause": "concept",
+      "questionText": "3x²y-5x²+7 是几次几项式；2πxy²/3 的系数与次数",
+      "correctAnswer": "三次三项式；系数 2π/3，次数 3",
+      "aiRecognized": true,
+      "note": "π 是数字不是字母，系数里要带上"
+    },
+    {
+      "id": "m_20261104_m3",
+      "examId": "ex_20261010_math",
+      "date": "2026-11-04",
+      "subject": "math",
+      "kpointId": "math.algebra.monomial_poly",
+      "kpointPath": null,
+      "source": "练习册第1课时·代数式",
+      "cause": "method",
+      "questionText": "用代数式表示：a 的 2 倍与 b 的 3 倍的和；某数 m 的 55% 的相反数",
+      "correctAnswer": "2a+3b；-0.55m",
+      "aiRecognized": true,
+      "note": "文字→式子按「先读先写」，倍、和、相反数逐层套"
+    },
+    {
+      "id": "m_20261104_m4",
+      "examId": "ex_20261010_math",
+      "date": "2026-11-04",
+      "subject": "math",
+      "kpointId": "math.algebra.remove_brackets",
+      "kpointPath": null,
+      "source": "练习册第2课时·去括号",
+      "cause": "concept",
+      "questionText": "去括号：a-(b-c)、-(a-b+c)、3(x-2y)-2(x+3y)",
+      "correctAnswer": "a-b+c；-a+b-c；x-12y",
+      "aiRecognized": true,
+      "note": "括号前是负号，括号内每一项都要变号，最容易只变第一项"
+    },
+    {
+      "id": "m_20261104_m5",
+      "examId": "ex_20261010_math",
+      "date": "2026-11-04",
+      "subject": "math",
+      "kpointId": "math.algebra.like_terms",
+      "kpointPath": null,
+      "source": "练习册第1课时·合并同类项",
+      "cause": "calc",
+      "questionText": "合并同类项：-2p²-3p³、4a²+2a²-6a²、3x²y-5x²y+2xy²",
+      "correctAnswer": "系数相加、字母指数不变",
+      "aiRecognized": true,
+      "note": "只加减系数，字母和指数原样抄下来"
+    },
+    {
+      "id": "m_20261104_m6",
+      "examId": "ex_20261010_math",
+      "date": "2026-11-04",
+      "subject": "math",
+      "kpointId": "math.algebra.simplify_eval",
+      "kpointPath": null,
+      "source": "练习册模块一·化简求值",
+      "cause": "calc",
+      "questionText": "先化简再求值：8a²b-2(2a²b-3ab²)-4a²b，其中 a=2,b=-1",
+      "correctAnswer": "12",
+      "aiRecognized": true,
+      "note": "化简完再代，代入时负数要加括号，(-1)²=1"
+    },
+    {
+      "id": "m_20261104_m7",
+      "examId": "ex_20261010_math",
+      "date": "2026-11-04",
+      "subject": "math",
+      "kpointId": "math.geometry.solid_net",
+      "kpointPath": null,
+      "source": "质量监测卷第20题",
+      "cause": "concept",
+      "questionText": "长方形绕一边旋转一周所得几何体的体积（长8宽6）",
+      "correctAnswer": "288π（半径用 6，不是 8）",
+      "aiRecognized": true,
+      "note": "绕哪条边转，那条边就是高，另一条才是半径"
+    },
+    {
+      "id": "m_20261104_m8",
+      "examId": "ex_20261010_math",
+      "date": "2026-11-04",
+      "subject": "math",
+      "kpointId": "math.geometry.solid_net",
+      "kpointPath": null,
+      "source": "质量监测卷第22、23题",
+      "cause": "method",
+      "questionText": "长方体展开图（12分）、数轴动点（12分）",
+      "correctAnswer": "22题全空、23题只写第一问",
+      "aiRecognized": true,
+      "note": "压轴题也要写第一问，写了就有分"
     }
   ],
   "plans": [
@@ -470,57 +659,262 @@
         {
           "date": "2026-11-04",
           "items": [
-            { "kpointId": "english.skill.word_memory", "subject": "english", "action": "practice", "minutes": 12, "mistakeIds": ["m_en_20261010_vocab"], "ebbinghausTag": null, "title": "英语：背 10 个词 — name/friend/class/school/teacher/student/book/morning/afternoon/evening", "todoIds": [] },
-            { "kpointId": "english.starter.letters_phonetics", "subject": "english", "action": "practice", "minutes": 8, "mistakeIds": [], "ebbinghausTag": null, "title": "英语：26 字母 + 5 个元音音标，随机抽 10 个读出来", "todoIds": [] },
-            { "kpointId": "history.skill.timeline", "subject": "history", "action": "practice", "minutes": 10, "mistakeIds": [], "ebbinghausTag": null, "title": "历史：背朝代顺序口诀，背完口述一遍", "todoIds": [] }
+            {
+              "kpointId": "english.skill.word_memory",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 12,
+              "mistakeIds": [
+                "m_en_20261010_vocab"
+              ],
+              "ebbinghausTag": null,
+              "title": "英语：背 10 个词 — name/friend/class/school/teacher/student/book/morning/afternoon/evening",
+              "todoIds": []
+            },
+            {
+              "kpointId": "english.starter.letters_phonetics",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 8,
+              "mistakeIds": [],
+              "ebbinghausTag": null,
+              "title": "英语：26 字母 + 5 个元音音标，随机抽 10 个读出来",
+              "todoIds": []
+            },
+            {
+              "kpointId": "history.skill.timeline",
+              "subject": "history",
+              "action": "practice",
+              "minutes": 10,
+              "mistakeIds": [],
+              "ebbinghausTag": null,
+              "title": "历史：背朝代顺序口诀，背完口述一遍",
+              "todoIds": []
+            }
           ]
         },
         {
           "date": "2026-11-05",
           "items": [
-            { "kpointId": "english.u1.be_verb", "subject": "english", "action": "practice", "minutes": 10, "mistakeIds": [], "ebbinghausTag": null, "title": "英语：be 动词口诀 + 12 题填空", "todoIds": [] },
-            { "kpointId": "english.skill.word_memory", "subject": "english", "action": "practice", "minutes": 12, "mistakeIds": [], "ebbinghausTag": "D1", "title": "英语：新背 10 词 + 滚动昨天 10 词", "todoIds": [] },
-            { "kpointId": "politics.growth.middle_school", "subject": "politics", "action": "practice", "minutes": 10, "mistakeIds": [], "ebbinghausTag": null, "title": "道法：中学时代按「是什么·为什么·怎么做」说 3 条", "todoIds": [] }
+            {
+              "kpointId": "english.u1.be_verb",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 10,
+              "mistakeIds": [],
+              "ebbinghausTag": null,
+              "title": "英语：be 动词口诀 + 12 题填空",
+              "todoIds": []
+            },
+            {
+              "kpointId": "english.skill.word_memory",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 12,
+              "mistakeIds": [],
+              "ebbinghausTag": "D1",
+              "title": "英语：新背 10 词 + 滚动昨天 10 词",
+              "todoIds": []
+            },
+            {
+              "kpointId": "politics.growth.middle_school",
+              "subject": "politics",
+              "action": "practice",
+              "minutes": 10,
+              "mistakeIds": [],
+              "ebbinghausTag": null,
+              "title": "道法：中学时代按「是什么·为什么·怎么做」说 3 条",
+              "todoIds": []
+            }
           ]
         },
         {
           "date": "2026-11-06",
           "items": [
-            { "kpointId": "english.u2.plural", "subject": "english", "action": "practice", "minutes": 10, "mistakeIds": [], "ebbinghausTag": null, "title": "英语：名词单复数规则 4 条 + 不规则 5 个，做 10 题", "todoIds": [] },
-            { "kpointId": "english.skill.word_memory", "subject": "english", "action": "practice", "minutes": 12, "mistakeIds": ["m_en_20261010_80"], "ebbinghausTag": "D3", "title": "英语：新背 10 词 + 滚动 20 词", "todoIds": [] },
-            { "kpointId": "chinese.classic.gushi", "subject": "chinese", "action": "practice", "minutes": 10, "mistakeIds": [], "ebbinghausTag": null, "title": "语文：古诗默写 4 句", "todoIds": [] }
+            {
+              "kpointId": "english.u2.plural",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 10,
+              "mistakeIds": [],
+              "ebbinghausTag": null,
+              "title": "英语：名词单复数规则 4 条 + 不规则 5 个，做 10 题",
+              "todoIds": []
+            },
+            {
+              "kpointId": "english.skill.word_memory",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 12,
+              "mistakeIds": [
+                "m_en_20261010_80"
+              ],
+              "ebbinghausTag": "D3",
+              "title": "英语：新背 10 词 + 滚动 20 词",
+              "todoIds": []
+            },
+            {
+              "kpointId": "chinese.classic.gushi",
+              "subject": "chinese",
+              "action": "practice",
+              "minutes": 10,
+              "mistakeIds": [],
+              "ebbinghausTag": null,
+              "title": "语文：古诗默写 4 句",
+              "todoIds": []
+            }
           ]
         },
         {
           "date": "2026-11-07",
           "items": [
-            { "kpointId": "english.grammar.simple_present", "subject": "english", "action": "microLesson", "minutes": 15, "mistakeIds": ["m_en_20261010_67", "m_en_20261010_70"], "ebbinghausTag": null, "title": "英语：一般现在时三单（+s / +es / 变 y 为 i）+ 12 题", "todoIds": [] },
-            { "kpointId": "english.skill.word_memory", "subject": "english", "action": "miniTest", "minutes": 15, "mistakeIds": [], "ebbinghausTag": "D7", "title": "英语：30 词全滚动听写", "todoIds": [] },
-            { "kpointId": "history.qin_han.unification", "subject": "history", "action": "practice", "minutes": 15, "mistakeIds": [], "ebbinghausTag": null, "title": "历史：秦统一——时间、措施 6 条、意义 + 1 道材料题", "todoIds": [] }
+            {
+              "kpointId": "english.grammar.simple_present",
+              "subject": "english",
+              "action": "microLesson",
+              "minutes": 15,
+              "mistakeIds": [
+                "m_en_20261010_67",
+                "m_en_20261010_70"
+              ],
+              "ebbinghausTag": null,
+              "title": "英语：一般现在时三单（+s / +es / 变 y 为 i）+ 12 题",
+              "todoIds": []
+            },
+            {
+              "kpointId": "english.skill.word_memory",
+              "subject": "english",
+              "action": "miniTest",
+              "minutes": 15,
+              "mistakeIds": [],
+              "ebbinghausTag": "D7",
+              "title": "英语：30 词全滚动听写",
+              "todoIds": []
+            },
+            {
+              "kpointId": "history.qin_han.unification",
+              "subject": "history",
+              "action": "practice",
+              "minutes": 15,
+              "mistakeIds": [],
+              "ebbinghausTag": null,
+              "title": "历史：秦统一——时间、措施 6 条、意义 + 1 道材料题",
+              "todoIds": []
+            }
           ]
         },
         {
           "date": "2026-11-09",
           "items": [
-            { "kpointId": "english.grammar.time_prep", "subject": "english", "action": "microLesson", "minutes": 12, "mistakeIds": ["m_en_20261010_cloze"], "ebbinghausTag": null, "title": "英语：at / on / in 时间介词 + 12 题", "todoIds": [] },
-            { "kpointId": "english.skill.word_memory", "subject": "english", "action": "practice", "minutes": 12, "mistakeIds": [], "ebbinghausTag": "D1", "title": "英语：新背 10 个作息类词", "todoIds": [] },
-            { "kpointId": "politics.friendship.friends", "subject": "politics", "action": "practice", "minutes": 10, "mistakeIds": [], "ebbinghausTag": null, "title": "道法：友谊特质 3 条 + 澄清 3 点", "todoIds": [] }
+            {
+              "kpointId": "english.grammar.time_prep",
+              "subject": "english",
+              "action": "microLesson",
+              "minutes": 12,
+              "mistakeIds": [
+                "m_en_20261010_cloze"
+              ],
+              "ebbinghausTag": null,
+              "title": "英语：at / on / in 时间介词 + 12 题",
+              "todoIds": []
+            },
+            {
+              "kpointId": "english.skill.word_memory",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 12,
+              "mistakeIds": [],
+              "ebbinghausTag": "D1",
+              "title": "英语：新背 10 个作息类词",
+              "todoIds": []
+            },
+            {
+              "kpointId": "politics.friendship.friends",
+              "subject": "politics",
+              "action": "practice",
+              "minutes": 10,
+              "mistakeIds": [],
+              "ebbinghausTag": null,
+              "title": "道法：友谊特质 3 条 + 澄清 3 点",
+              "todoIds": []
+            }
           ]
         },
         {
           "date": "2026-11-10",
           "items": [
-            { "kpointId": "english.skill.translate", "subject": "english", "action": "practice", "minutes": 12, "mistakeIds": ["m_en_20261010_76", "m_en_20261010_77"], "ebbinghausTag": null, "title": "英语：汉译英 8 句，只要求主干对", "todoIds": [] },
-            { "kpointId": "english.skill.word_memory", "subject": "english", "action": "practice", "minutes": 12, "mistakeIds": [], "ebbinghausTag": "D3", "title": "英语：新背 10 词 + 滚动 40 词", "todoIds": [] },
-            { "kpointId": "chinese.basic.ziyin_zixing", "subject": "chinese", "action": "practice", "minutes": 10, "mistakeIds": [], "ebbinghausTag": null, "title": "语文：易错字听写 20 个", "todoIds": [] }
+            {
+              "kpointId": "english.skill.translate",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 12,
+              "mistakeIds": [
+                "m_en_20261010_76",
+                "m_en_20261010_77"
+              ],
+              "ebbinghausTag": null,
+              "title": "英语：汉译英 8 句，只要求主干对",
+              "todoIds": []
+            },
+            {
+              "kpointId": "english.skill.word_memory",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 12,
+              "mistakeIds": [],
+              "ebbinghausTag": "D3",
+              "title": "英语：新背 10 词 + 滚动 40 词",
+              "todoIds": []
+            },
+            {
+              "kpointId": "chinese.basic.ziyin_zixing",
+              "subject": "chinese",
+              "action": "practice",
+              "minutes": 10,
+              "mistakeIds": [],
+              "ebbinghausTag": null,
+              "title": "语文：易错字听写 20 个",
+              "todoIds": []
+            }
           ]
         },
         {
           "date": "2026-11-11",
           "items": [
-            { "kpointId": "english.writing.basic", "subject": "english", "action": "microLesson", "minutes": 15, "mistakeIds": ["m_en_20261010_writing"], "ebbinghausTag": null, "title": "英语：背 2 个万能开头句 + 按要点写 5 句", "todoIds": [] },
-            { "kpointId": "english.skill.initial_letter", "subject": "english", "action": "practice", "minutes": 12, "mistakeIds": ["m_en_20261010_80"], "ebbinghausTag": null, "title": "英语：首字母填空 10 空（先判词性）", "todoIds": [] },
-            { "kpointId": "english.skill.word_memory", "subject": "english", "action": "miniTest", "minutes": 8, "mistakeIds": [], "ebbinghausTag": "D7", "title": "英语：50 词听写小测（本周验收）", "todoIds": [] }
+            {
+              "kpointId": "english.writing.basic",
+              "subject": "english",
+              "action": "microLesson",
+              "minutes": 15,
+              "mistakeIds": [
+                "m_en_20261010_writing"
+              ],
+              "ebbinghausTag": null,
+              "title": "英语：背 2 个万能开头句 + 按要点写 5 句",
+              "todoIds": []
+            },
+            {
+              "kpointId": "english.skill.initial_letter",
+              "subject": "english",
+              "action": "practice",
+              "minutes": 12,
+              "mistakeIds": [
+                "m_en_20261010_80"
+              ],
+              "ebbinghausTag": null,
+              "title": "英语：首字母填空 10 空（先判词性）",
+              "todoIds": []
+            },
+            {
+              "kpointId": "english.skill.word_memory",
+              "subject": "english",
+              "action": "miniTest",
+              "minutes": 8,
+              "mistakeIds": [],
+              "ebbinghausTag": "D7",
+              "title": "英语：50 词听写小测（本周验收）",
+              "todoIds": []
+            }
           ]
         }
       ]
@@ -548,9 +942,19 @@
       "id": "ai_20261104_4",
       "createdAt": "2026-11-04",
       "raw": "错题排重做的日期按「录入日 11-04」起算 D1/D3/D7，不是卷面考试日 10-10——否则重做提醒会全部落在过去、队列失效。考试日 10-10 完整保留在考试档案里。"
+    },
+    {
+      "id": "ai_20261104_5",
+      "createdAt": "2026-11-04",
+      "raw": "期中冲刺模式：11/5-11/6 两天七科连考。今晚起暂停原 7 天补学计划，改为主攻小四门背诵+语文默写（4 科各 100 分，提分最快）；数学期中只考前三章（有理数/整式/一元一次方程），上次卷子丢的 32 分几何图形初步本次不考，故新增数学错题以整式概念、去括号、合并同类项为主，几何两条存档到期中后再处理。英语明晚家教改为口头抽查+作文模板。"
     }
   ],
   "habitEvents": [],
   "kpointOverrides": [],
-  "kpointStates": {}
+  "kpointStates": {},
+  "resetTodoDates": [
+    "2026-11-04",
+    "2026-11-05",
+    "2026-11-06"
+  ]
 }

@@ -313,7 +313,9 @@
       { id: 'math', name: '数学', icon: 'math', textbook: '人教版·七年级上册', color: '#2f80ed' },
       { id: 'chinese', name: '语文', icon: 'chinese', textbook: '部编版·七年级上册', color: '#f59e0b' },
       { id: 'history', name: '历史', icon: 'read', textbook: '部编版·七年级上册', color: '#8b5cf6' },
-      { id: 'politics', name: '道法', icon: 'flag', textbook: '部编版·七年级上册', color: '#ec4899' }
+      { id: 'politics', name: '道法', icon: 'flag', textbook: '部编版·七年级上册', color: '#ec4899' },
+      { id: 'biology', name: '生物', icon: 'leaf', textbook: '人教版·七年级上册', color: '#16a34a' },
+      { id: 'geography', name: '地理', icon: 'star', textbook: '人教版·七年级上册', color: '#0ea5e9' }
     ],
     kpoints: kpoints,
     causes: [

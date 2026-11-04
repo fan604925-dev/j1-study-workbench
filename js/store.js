@@ -877,6 +877,16 @@
         });
       }
 
+      // ---- 换计划：AI 可声明「重置某几天的未完成待办」（已完成/半完成的永远不动）----
+      if (Array.isArray(feed.resetTodoDates)) {
+        feed.resetTodoDates.forEach(date => {
+          if (!Array.isArray(this.todos[date])) return;
+          const before = this.todos[date].length;
+          this.todos[date] = this.todos[date].filter(t => t.status === 'completed' || t.status === 'partial');
+          applied.todosReset = (applied.todosReset || 0) + (before - this.todos[date].length);
+        });
+      }
+
       // ---- todos：已有 id 一律保留本地（进度），只插入新 id（按 id 幂等）----
       if (feed.todos && typeof feed.todos === 'object' && !Array.isArray(feed.todos)) {
         Object.keys(feed.todos).forEach(date => {
