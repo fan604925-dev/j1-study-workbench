@@ -135,17 +135,30 @@
     /* ========== UI 工具 ========== */
     subjectTag(subject) {
       const map = {
+        english: { label: '英语', cls: 'tag-english' },
         math: { label: '数学', cls: 'tag-math' },
         chinese: { label: '语文', cls: 'tag-chinese' },
-        english: { label: '英语', cls: 'tag-english' },
+        history: { label: '历史', cls: 'tag-history' },
+        politics: { label: '道法', cls: 'tag-politics' },
         other: { label: '其他', cls: 'tag-other' }
       };
       const s = map[subject] || map.other;
       return '<span class="tag ' + s.cls + '">' + s.label + '</span>';
     },
 
+    // 学科清单（从知识点图谱读取，避免页面硬编码）
+    subjectList() {
+      const K = global.J1KPOINTS;
+      return (K && K.subjects) ? K.subjects.slice() : [
+        { id: 'math', name: '数学' }, { id: 'chinese', name: '语文' }, { id: 'english', name: '英语' }
+      ];
+    },
+
     subjectName(subject) {
-      return { math: '数学', chinese: '语文', english: '英语', other: '其他' }[subject] || '其他';
+      return {
+        math: '数学', chinese: '语文', english: '英语',
+        history: '历史', politics: '道法', other: '其他'
+      }[subject] || '其他';
     },
 
     toast(msg, duration) {

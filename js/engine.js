@@ -369,8 +369,15 @@
     if (!tops.length) return '暂无足够错题，先录 3-5 题再诊断。';
     return tops.map((r, i) => {
       const k = kpointMap[r.kpointId];
-      const name = k ? (k.chapter.split(' ')[0] + '·' + k.name) : r.kpointId;
-      const subj = { math: '数学', chinese: '语文', english: '英语' }[r.subject] || r.subject;
+      // 「Module 7 My past life」这类英文单元只取前两段，避免切出孤立的 "Module"
+      let name = r.kpointId;
+      if (k) {
+        const ch = /^Module\b/.test(k.chapter)
+          ? k.chapter.split(' ').slice(0, 2).join(' ')
+          : k.chapter.split(' ')[0];
+        name = ch + '·' + k.name;
+      }
+      const subj = { math: '数学', chinese: '语文', english: '英语', history: '历史', politics: '道法' }[r.subject] || r.subject;
       return (i + 1) + '. ' + subj + '「' + name + '」：' + r.mistakeCount + ' 题错题' +
         (r.topCause ? '，主要错因 ' + causeName(r.topCause) : '') +
         (r.failCount ? '，重做失败 ' + r.failCount + ' 次' : '');

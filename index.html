@@ -202,12 +202,14 @@
     }
 
     // 错题科目分布
-    const subjCount = { math: 0, chinese: 0, english: 0, other: 0 };
+    const subjCount = {};
     store.mistakes.forEach(m => { if (!m.archived) subjCount[m.subject] = (subjCount[m.subject] || 0) + 1; });
-    const hasMistake = (subjCount.math + subjCount.chinese + subjCount.english + subjCount.other) > 0;
+    const subjAll = app.subjectList();
+    const subjLabels = subjAll.map(s => s.name);
+    const subjValues = subjAll.map(s => subjCount[s.id] || 0);
+    const hasMistake = subjValues.some(v => v > 0);
     if (J1Charts.available()) {
-      J1Charts.doughnut('mistake', document.getElementById('chart-mistake'),
-        ['数学', '语文', '英语'], [subjCount.math, subjCount.chinese, subjCount.english]);
+      J1Charts.doughnut('mistake', document.getElementById('chart-mistake'), subjLabels, subjValues);
       if (!hasMistake) {
         document.getElementById('chart-mistake').parentElement.insertAdjacentHTML('afterbegin',
           '<div class="text-xs text-center mb-1" style="color:var(--muted);">还没有错题记录</div>');

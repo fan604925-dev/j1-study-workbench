@@ -4,7 +4,8 @@
  * 图谱是数据不是硬编码：所有下拉/级联/处方/计划生成均从此文件读取。
  * 自定义知识点运行时写入 j1_kpointOverrides（custom:true）；
  * 停用内置知识点写入 j1_deletedKpointIds（防版本升级复活）。
- * 教材：数学·人教版七上 / 语文·部编版七上 / 英语·人教版七上
+ * 教材：英语·外研版（新标准）七上 / 数学·人教版七上 / 语文·部编版七上
+ *       历史·部编版七上 / 道法·部编版七上
  * ============================================================
  */
 (function (global) {
@@ -204,6 +205,98 @@
       '句首大写、专有名词大写、句末标点；先例句仿写', ['改错 10 题', '仿写 5 句'],
       '10 题对 8', 15, ['sloppy']),
 
+    /* ============ 英语 · 外研版（新标准）专项补强 ============ */
+    // 依据 2026-10 第一次质量监测暴露的真实缺口，全部为「零起点重建」向
+    kp('english.module5.routine_vocab', 'english', 'Module 5 My school day', '日常作息词组与时间表达',
+      '把一天按时序过一遍：get up→have breakfast→go to school→have classes→do homework→go to bed，每个词组配一个钟点一起记',
+      ['词组英汉互译 12 个', '用 5 句话说出自己的一天', '时间表达填空 10 题'],
+      '12 个词组能默写，能连着说出 5 句作息', 15, ['concept', 'sloppy'],
+      { keywords: ['get up', 'have breakfast', 'go to school', 'do homework', 'go to bed', 'o\'clock'] }),
+    kp('english.grammar.time_prep', 'english', 'Module 5 My school day', '时间介词 in / on / at',
+      '口诀：at 管钟点（at 6:30）、on 管星期和日期（on Monday）、in 管月份年份和一天的三段（in the morning）',
+      ['介词填空 12 题', '改错 8 题'],
+      '12 题对 10，且能说出 at/on/in 各管什么', 15, ['concept', 'sloppy']),
+    kp('english.grammar.can_modal', 'english', '语法专项', '情态动词 can 与动词原形',
+      'can 后面永远跟动词原形——不加 to、不加 s、不加 ed；否定是 can\'t',
+      ['选 can 类 10 题', '改错 8 题'],
+      '10 题对 9，能说出"can 后跟原形"这条规则', 12, ['concept']),
+    kp('english.grammar.past_tense', 'english', 'Module 7 My past life', '一般过去时（was/were + 过去式）',
+      '看到 yesterday / last / ago 就用过去式；先死背 12 个不规则：get-got, go-went, have-had, do-did, see-saw, make-made, take-took, come-came, eat-ate, say-said, is-was, are-were',
+      ['不规则动词 12 个默写', '改时态 10 题', '看图造句 5 句'],
+      '12 个不规则动词默写全对；改时态 10 题对 8', 20, ['concept', 'method']),
+    kp('english.grammar.phrasal_verb', 'english', '语法专项', '短语动词与固定搭配',
+      '高频 12 个：go through / be ready for / try one\'s best / look after / look for / take part in / be good at / be interested in / get on well with / make friends with / at the same time / all in all',
+      ['短语英汉互译 12 个', '汉译英 8 句'],
+      '12 个短语能英汉互译，翻译时能主动用上', 15, ['concept', 'method']),
+    kp('english.skill.initial_letter', 'english', '写作·短文填空', '首字母填空（先判词性再猜词）',
+      '三步走：①看空格前后判断词性（名词/动词/形容词）②看搭配与单复数 ③用首字母锁定拼写',
+      ['首字母填空 10 空 ×3 篇', '只判词性 15 空'],
+      '10 空对 7，能说出每空为什么填这个词性', 15, ['concept', 'method']),
+    kp('english.skill.translate', 'english', '写作·句子翻译', '汉译英（先写主干）',
+      '拆句法：主语+动词+宾语先写出来，再补时间地点；不会的词用会的词替换，绝不空着',
+      ['翻译 8 句', '改错 6 句'],
+      '8 句主干全对，语法错误不超过 2 处', 15, ['method', 'concept']),
+    kp('english.writing.basic', 'english', '写作·书面表达', '书面表达（要点齐全+时态一致+词数够）',
+      '三步：①把中文要点逐条打勾列出来 ②一句要点写一句话 ③写完数词数、逐个查动词时态',
+      ['背 2 个万能开头句', '按要点写 60 词 ×2 篇'],
+      '三个要点全写到、时态统一、不少于 50 词', 20, ['method', 'sloppy']),
+    kp('english.reading.table_match', 'english', '技能·阅读', '阅读信息匹配（表格/图示题）',
+      '先看表格的列标题（时间/地点/活动/带什么），再回原文逐行对；问什么找什么，不读全文',
+      ['表格题 3 篇', '判断题 10 题'],
+      '3 篇表格题各错不超过 1 题', 15, ['reading', 'method']),
+    kp('english.reading.detail', 'english', '技能·阅读', '阅读细节理解与还原句子（七选五）',
+      '细节题：圈题干关键词回原文定位；七选五：盯空格前后句的代词和逻辑词（First/Second/But/So）',
+      ['细节题 10 题', '七选五 3 篇'],
+      '细节题 10 题对 8，七选五 5 空对 4', 20, ['reading', 'method']),
+
+    /* ================= 历史 · 部编版七年级上册 ================= */
+    kp('history.skill.timeline', 'history', '技能·朝代顺序', '朝代顺序与时间线',
+      '背口诀"夏商与西周，东周分两段；春秋和战国，一统秦两汉；三分魏蜀吴，二晋前后延"',
+      ['朝代顺序默写', '给事件排时间顺序 10 题'],
+      '能一口气背出朝代顺序，排顺序 10 题对 9', 12, ['concept', 'sloppy']),
+    kp('history.prehistory.early_human', 'history', '第一单元 史前时期', '早期人类与原始农耕',
+      '三个人群对比表：元谋人/北京人/山顶洞人（时间·地点·用火）；两个农耕：河姆渡（稻）与半坡（粟）',
+      ['列表对比 3 个人群', '农耕文化填空 8 题'],
+      '能说出 3 个人群的时间地点和用火情况', 15, ['concept']),
+    kp('history.xia_shang_zhou.system', 'history', '第二单元 夏商周', '夏商周更替与分封制',
+      '分封制四要素：分给谁（亲属功臣）、分什么（土地人民）、为什么（巩固统治）、有什么影响（诸侯争霸）',
+      ['分封制四问默写', '西周制度填空 8 题'],
+      '能完整答出分封制的目的·内容·影响', 15, ['concept', 'method']),
+    kp('history.qin_han.unification', 'history', '第三单元 秦汉', '秦统一与中央集权',
+      '秦统一三件套：时间（前 221）、措施（皇帝制/郡县制/统一文字货币度量衡）、意义（第一个统一多民族国家）',
+      ['秦措施默写 6 条', '材料题 2 道'],
+      '措施 6 条能默写，会按"目的+措施+影响"答材料题', 15, ['concept', 'method']),
+    kp('history.qin_han.han_dynasty', 'history', '第三单元 秦汉', '汉武帝大一统与丝绸之路',
+      '汉武帝四招：推恩令（削藩）、罢黜百家尊崇儒术、盐铁官营、北击匈奴；丝路：长安→河西走廊→西域→欧洲',
+      ['汉武帝措施默写 4 条', '丝路路线默画'],
+      '四招能默写，能画出丝路主线', 15, ['concept']),
+    kp('history.wei_jin.situation', 'history', '第四单元 三国两晋南北朝', '三国鼎立与民族交融',
+      '官渡→赤壁→三国鼎立（魏蜀吴·都城）；北魏孝文帝改革（迁都洛阳+汉化）',
+      ['三国鼎立表默写', '孝文帝措施 4 条'],
+      '能说出三国名称都城与孝文帝改革内容', 15, ['concept']),
+
+    /* ================= 道法 · 部编版七年级上册 ================= */
+    kp('politics.growth.middle_school', 'politics', '第一单元 成长的节拍', '中学时代与学习',
+      '每个知识点按"是什么—为什么—怎么做"三问背；学习部分记"学习不仅仅在学校"',
+      ['三问法口头复述 1 个知识点', '选择题 6 题'],
+      '能用"是什么·为什么·怎么做"完整说 1 个知识点', 12, ['concept', 'method']),
+    kp('politics.growth.self', 'politics', '第一单元 成长的节拍', '认识自己',
+      '三个途径：自我评价、他人评价、在集体中认识；态度：客观、全面、发展地看',
+      ['三途径默写', '情境题 3 题'],
+      '能默写三个途径并举一个自己的例子', 12, ['concept']),
+    kp('politics.friendship.friends', 'politics', '第二单元 友谊的天空', '友谊与网上交友',
+      '友谊的特质 3 条 + 澄清 3 点（不是一成不变/不是不加分辨/不是单向索取）；网上交友 4 个注意',
+      ['特质 3 条默写', '情境判断 6 题'],
+      '能默写友谊特质 3 条并判断一个情境', 12, ['concept', 'method']),
+    kp('politics.teacher.parents', 'politics', '第三单元 师长情谊', '师生交往与孝亲敬长',
+      '师生：教学相长、亦师亦友；孝亲敬长是法定义务也是传统美德，从"倾听+分担"做起',
+      ['两个知识点三问复述', '材料题 2 道'],
+      '能用三问法各说 1 遍，会结合材料举生活例子', 12, ['concept', 'method']),
+    kp('politics.life.value', 'politics', '第四单元 生命的思考', '生命的意义与挫折',
+      '生命特点 3 条；挫折两面性（消极+积极）；增强生命韧性的方法 3 条',
+      ['生命特点默写', '挫折题 4 题'],
+      '能默写生命特点与增强韧性的方法', 12, ['concept']),
+
     /* ================= 预留（七下，占位停用） ================= */
     kp('english.u5.placeholder', 'english', 'Unit 5-9（七下预习）', 'Unit 5-9 词汇与语法',
       '待启用', ['待启用'], '待启用', 15, ['concept'], { term: '七下', enabled: false }),
@@ -216,9 +309,11 @@
   global.J1KPOINTS = {
     version: '1.0',
     subjects: [
+      { id: 'english', name: '英语', icon: 'english', textbook: '外研版（新标准）·七年级上册', color: '#22c55e' },
       { id: 'math', name: '数学', icon: 'math', textbook: '人教版·七年级上册', color: '#2f80ed' },
       { id: 'chinese', name: '语文', icon: 'chinese', textbook: '部编版·七年级上册', color: '#f59e0b' },
-      { id: 'english', name: '英语', icon: 'english', textbook: '人教版·七年级上册', color: '#22c55e' }
+      { id: 'history', name: '历史', icon: 'read', textbook: '部编版·七年级上册', color: '#8b5cf6' },
+      { id: 'politics', name: '道法', icon: 'flag', textbook: '部编版·七年级上册', color: '#ec4899' }
     ],
     kpoints: kpoints,
     causes: [

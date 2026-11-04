@@ -74,8 +74,9 @@
     }
 
     // 筛选
+    const subs = app.subjectList().map(s => s.id);
     document.getElementById('filter-chips').innerHTML =
-      ['all', 'math', 'chinese', 'english'].map(s =>
+      ['all'].concat(subs).map(s =>
         '<span class="chip ' + (filter.subject === s ? 'active' : '') + '" onclick="setF(\'subject\',\'' + s + '\')">' +
         (s === 'all' ? '全部科目' : app.subjectName(s)) + '</span>').join('') +
       ['all', 'todo', 'redo_wrong', 'redo_right'].map(s =>
