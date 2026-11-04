@@ -1,7 +1,7 @@
 {
   "app": "j1-study-workbench",
-  "feedVersion": 4,
-  "generatedAt": "2026-11-04T01:20:00.000Z",
+  "feedVersion": 5,
+  "generatedAt": "2026-11-04T01:45:00.000Z",
   "generatedBy": "ai-pipeline",
   "settings": {
     "child": {
@@ -26,16 +26,16 @@
         "id": "t_sprint1104_1",
         "date": "2026-11-04",
         "subject": "chinese",
-        "title": "语文·默写：8首古诗+《论语十二章》+《诫子书》",
+        "title": "语文·只重听周末听写错过的字词 + 抽默2句最不熟的古诗",
         "targetValue": 1,
-        "estMinutes": 40,
-        "hardToStart": true,
+        "estMinutes": 15,
+        "hardToStart": false,
         "source": "plan",
         "planId": "p_midterm_1105",
         "kpointId": null,
         "mistakeId": null,
         "ebbinghausTag": null,
-        "note": "先默再对照，只抄错的那句，不重抄全篇"
+        "note": "周末已全听过、学校也默过几轮，今晚只防手生，不再全默"
       },
       {
         "id": "t_sprint1104_2",
@@ -58,7 +58,7 @@
         "subject": "politics",
         "title": "道法·提纲1-7课：只背【题号+3个关键词】",
         "targetValue": 1,
-        "estMinutes": 35,
+        "estMinutes": 40,
         "hardToStart": false,
         "source": "plan",
         "planId": "p_midterm_1105",
@@ -73,7 +73,7 @@
         "subject": "geography",
         "title": "地理·地图册第一章翻一遍 + 练习册错题",
         "targetValue": 1,
-        "estMinutes": 30,
+        "estMinutes": 35,
         "hardToStart": false,
         "source": "plan",
         "planId": "p_midterm_1105",
@@ -86,16 +86,16 @@
         "id": "t_sprint1104_5",
         "date": "2026-11-04",
         "subject": "history",
-        "title": "历史·知识结构图第1-2页（朝代顺序）",
+        "title": "历史·知识结构图1-13课完整过一遍 + 朝代顺序口诀",
         "targetValue": 1,
-        "estMinutes": 15,
+        "estMinutes": 35,
         "hardToStart": false,
         "source": "plan",
         "planId": "p_midterm_1105",
         "kpointId": null,
         "mistakeId": null,
         "ebbinghausTag": null,
-        "note": "今晚只扫一眼，明晚正式背"
+        "note": "今晚过完一遍，明晚只剩强化，压力小一半"
       }
     ],
     "2026-11-05": [
@@ -947,14 +947,17 @@
       "id": "ai_20261104_5",
       "createdAt": "2026-11-04",
       "raw": "期中冲刺模式：11/5-11/6 两天七科连考。今晚起暂停原 7 天补学计划，改为主攻小四门背诵+语文默写（4 科各 100 分，提分最快）；数学期中只考前三章（有理数/整式/一元一次方程），上次卷子丢的 32 分几何图形初步本次不考，故新增数学错题以整式概念、去括号、合并同类项为主，几何两条存档到期中后再处理。英语明晚家教改为口头抽查+作文模板。"
+    },
+    {
+      "id": "ai_20261104_6",
+      "createdAt": "2026-11-04",
+      "raw": "用户反馈：周末已带孩子听写1-3单元全部生字词（错的重听过），古诗词学校也默过几轮。语文默写从40分钟降为15分钟「只过错的」，省出的时间加给历史（15→35分钟，结构图1-13课今晚过完一遍）和道法/地理。"
     }
   ],
   "habitEvents": [],
   "kpointOverrides": [],
   "kpointStates": {},
   "resetTodoDates": [
-    "2026-11-04",
-    "2026-11-05",
-    "2026-11-06"
+    "2026-11-04"
   ]
 }
