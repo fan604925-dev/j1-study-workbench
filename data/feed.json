@@ -1,7 +1,7 @@
 {
   "app": "j1-study-workbench",
-  "feedVersion": 5,
-  "generatedAt": "2026-11-04T01:45:00.000Z",
+  "feedVersion": 6,
+  "generatedAt": "2026-11-05T00:45:00.000Z",
   "generatedBy": "ai-pipeline",
   "settings": {
     "child": {
@@ -103,46 +103,46 @@
         "id": "t_sprint1105_1",
         "date": "2026-11-05",
         "subject": "history",
-        "title": "历史·核心问题链1-13课 + 知识结构图（明早10:10考）",
+        "title": "历史·核心问题链1-13课：妈妈念题、孩子答，不会的画圈",
         "targetValue": 1,
         "estMinutes": 60,
-        "hardToStart": true,
+        "hardToStart": false,
         "source": "plan",
         "planId": "p_midterm_1105",
         "kpointId": null,
         "mistakeId": null,
         "ebbinghausTag": null,
-        "note": "按13课顺序，每课只记3个要点"
+        "note": "用老师发的学习资料3-9页，答不出的明早考完英语后50分钟再看"
       },
       {
         "id": "t_sprint1105_2",
         "date": "2026-11-05",
         "subject": "english",
-        "title": "英语·家教前热身：默写40个高频词 + 2个作文开头句",
+        "title": "英语家教 20:00-22:00：口头抽查+作文模板，不讲新语法",
         "targetValue": 1,
-        "estMinutes": 30,
+        "estMinutes": 120,
         "hardToStart": false,
         "source": "plan",
         "planId": "p_midterm_1105",
         "kpointId": null,
         "mistakeId": null,
         "ebbinghausTag": null,
-        "note": "家教2小时改为口头抽查，不讲新语法"
+        "note": "家教前花15分钟默写40个高频词热身"
       },
       {
         "id": "t_sprint1105_3",
         "date": "2026-11-05",
-        "subject": "math",
-        "title": "数学·整式去括号 + 合并同类项 10题热手",
+        "subject": "history",
+        "title": "历史·睡前10分钟：朝代顺序口诀再过一遍",
         "targetValue": 1,
-        "estMinutes": 15,
+        "estMinutes": 10,
         "hardToStart": false,
         "source": "plan",
         "planId": "p_midterm_1105",
         "kpointId": null,
         "mistakeId": null,
         "ebbinghausTag": null,
-        "note": "只做熟的题，找回手感，不碰新题型"
+        "note": "夏商与西周，东周分两段；春秋和战国，一统秦两汉"
       }
     ],
     "2026-11-06": [
@@ -952,12 +952,17 @@
       "id": "ai_20261104_6",
       "createdAt": "2026-11-04",
       "raw": "用户反馈：周末已带孩子听写1-3单元全部生字词（错的重听过），古诗词学校也默过几轮。语文默写从40分钟降为15分钟「只过错的」，省出的时间加给历史（15→35分钟，结构图1-13课今晚过完一遍）和道法/地理。"
+    },
+    {
+      "id": "ai_20261105_1",
+      "createdAt": "2026-11-05",
+      "raw": "昨晚实况：语文字词已报听写（老师新勾选词表只错4个，订正6-7遍）；生物、地理按提纲过完并打印；道法、历史零复习。道法今日已考放掉。今晚：历史60分钟（零复习且明早10:10考）+ 英语家教（口头抽查模式）+ 数学留给明天中午。"
     }
   ],
   "habitEvents": [],
   "kpointOverrides": [],
   "kpointStates": {},
   "resetTodoDates": [
-    "2026-11-04"
+    "2026-11-05"
   ]
 }
