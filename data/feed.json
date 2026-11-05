@@ -1,7 +1,7 @@
 {
   "app": "j1-study-workbench",
-  "feedVersion": 8,
-  "generatedAt": "2026-11-05T09:21:42.458Z",
+  "feedVersion": 9,
+  "generatedAt": "2026-11-05T09:27:05.711Z",
   "generatedBy": "ai-pipeline",
   "settings": {
     "child": {
@@ -107,57 +107,42 @@
         "mistakeId": null,
         "ebbinghausTag": null,
         "targetValue": 1,
+        "kpointId": null,
         "id": "t_sprint1105_1",
+        "subject": "history",
+        "title": "18:20-18:50 一张纸任务（孩子独立完成，不用手机）",
+        "estMinutes": 30,
+        "note": "正面抄9个时间锚点+秦汉对比表，背面抄6个英语通用句块。抄完放桌上，妈妈19:00进门只看纸、不问「做了没」。这张纸19点历史抽答和20点家教接着用"
+      },
+      {
+        "date": "2026-11-05",
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "targetValue": 1,
+        "kpointId": null,
+        "id": "t_sprint1105_2",
+        "subject": "history",
+        "title": "19:00-20:00 历史完整1小时（妈妈带，最清醒时段）",
+        "estMinutes": 60,
+        "note": "①19:00-19:05 看那张纸，只夸不查错 ②19:05-19:35 保底分抽答：9时间锚点/制度配对/人物/商鞅变法/汉武帝四条，不会的画圈 ③19:35-19:55 拿一道资料里的材料题，按材料题3句式分点①②③实写一遍 + 秦汉对比表 ④19:55-20:00 朝代口诀收尾、收桌迎老师"
+      },
+      {
+        "date": "2026-11-05",
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "targetValue": 1,
+        "kpointId": "e_writing",
+        "id": "t_sprint1105_3",
         "subject": "english",
         "title": "英语家教 20:00-22:00：两篇作文（词块→骨架）+ Starter~U3 单词 + 旧题回看",
         "estMinutes": 120,
-        "kpointId": "e_writing",
-        "note": "①40分钟通用句块+方位句在「校园/家庭」两组名词间换三轮 ②30分钟看中文提纲说英文、不逐字默 ③20分钟回看旧题只讲错因 ④最后10分钟默写10个拼写高危词：building/library/shelf/blackboard/engineer/housewife/behind/between/dining hall/grade"
-      },
-      {
-        "date": "2026-11-05",
-        "hardToStart": false,
-        "source": "plan",
-        "planId": "p_midterm_1105",
-        "mistakeId": null,
-        "ebbinghausTag": null,
-        "targetValue": 1,
-        "id": "t_sprint1105_2",
-        "subject": "history",
-        "title": "历史·吃饭时听一遍时间轴（19:30-19:50，不用回答）",
-        "estMinutes": 20,
-        "kpointId": null,
-        "note": "妈妈只管念9个时间锚点：前2070夏/前1600商/前1046西周/前770春秋/前475战国/前356商鞅变法/前221秦统一/前202西汉/前138张骞。这段算「混耳熟」，不要求答，目的是降低22点后的启动难度"
-      },
-      {
-        "date": "2026-11-05",
-        "hardToStart": false,
-        "source": "plan",
-        "planId": "p_midterm_1105",
-        "mistakeId": null,
-        "ebbinghausTag": null,
-        "targetValue": 1,
-        "id": "t_sprint1105_3",
-        "subject": "history",
-        "title": "历史·22:00-22:25 保底分抽答：时间轴+制度配对+人物对应",
-        "estMinutes": 25,
-        "kpointId": null,
-        "note": "只求选择题和填空不丢分。妈妈念、孩子口头答，答不出的画圈跳过不纠缠。范围：9个时间锚点、禅让/世袭/分封/郡县对应、孔子仁/孟子仁政/韩非法治、商鞅变法内容作用、汉武帝四条措施"
-      },
-      {
-        "date": "2026-11-05",
-        "hardToStart": false,
-        "source": "plan",
-        "planId": "p_midterm_1105",
-        "mistakeId": null,
-        "ebbinghausTag": null,
-        "targetValue": 1,
-        "id": "t_sprint1105_4",
-        "subject": "history",
-        "title": "历史·22:25-22:45 只攻画圈题 + 材料题3句式 + 秦始皇/汉武帝对比表",
-        "estMinutes": 20,
-        "kpointId": null,
-        "note": "这才是37分的真缺口：①「根据材料」答案照抄材料关键词 ②「结合所学」才用背过的知识点 ③作用/启示答「有利于统一/经济发展/改革创新」。铁律：分点写①②③，一点一句，禁止一整段大白话。最后2分钟朝代口诀收尾"
+        "note": "直接用孩子18:20抄的那张纸背面当词块表。①40分钟句块在「校园/家庭」两组名词间换三轮 ②30分钟看中文提纲说英文、不逐字默 ③20分钟旧题只讲错因 ④最后10分钟默写10个拼写高危词"
       }
     ],
     "2026-11-06": [
@@ -997,6 +982,11 @@
       "id": "ai_20261105_3",
       "createdAt": "2026-11-05",
       "raw": "修正 v7 判断：把历史从60分钟压到25分钟，只依据「资料只有6页」，忽略了历史37/100、上次考得非常差这个事实——资料少不等于掌握好，恰恰可能是没背进去。改为分层加量：晚餐被动听20min + 晚上主动45min（保底分抽答25 + 材料题模板与秦汉对比20）+ 明早考前20min，深度学习累计65分钟，且拆两段符合间隔重复。增量不是加背诵量，而是补「材料题答题模板」：37分的孩子主要栽在材料题不照材料答、不分点、踩不到关键词；数学老师担心的「没见过的题型」在初一期中前三章并不成立（题型封闭），真正必然没见过的是历史材料题的材料，所以时间应转投模板训练。猿辅导30分钟挪到明中午紧贴考试，只做3类新题型。"
+    },
+    {
+      "id": "ai_20261105_4",
+      "createdAt": "2026-11-05",
+      "raw": "时间信息修正：v7/v8 都按旧作息「妈妈19:30到家」推演，用户纠正为妈妈19:00到家、孩子18:00就到家、家教20:00来——18:00-20:00 多出2小时且是孩子精力最好的清醒时段。此前「今晚塞不下1小时历史」的结论作废。重排：18:20-18:50 孩子独立一张纸抄写30min（不用手机、留纸面产出供19:00验收）→ 19:00-20:00 妈妈带历史完整60min（含材料题实写）→ 20:00-22:00 家教 → 22:20睡，比昨晚早10分钟。历史今晚接触量90min，22点后不再碰历史。猿辅导30min仍放明中午：时间不够这条理由已失效，但「数学63%最好/前三章题型封闭/14:20才考紧贴中午更有效」三条仍成立，结论不变、理由更换。多出的时间不拿来塞更多课，而是把历史挪到清醒时段+早睡。"
     }
   ],
   "habitEvents": [],
