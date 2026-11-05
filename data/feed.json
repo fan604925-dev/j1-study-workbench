@@ -1,7 +1,7 @@
 {
   "app": "j1-study-workbench",
-  "feedVersion": 6,
-  "generatedAt": "2026-11-05T00:45:00.000Z",
+  "feedVersion": 7,
+  "generatedAt": "2026-11-05T09:10:37.253Z",
   "generatedBy": "ai-pipeline",
   "settings": {
     "child": {
@@ -102,47 +102,62 @@
       {
         "id": "t_sprint1105_1",
         "date": "2026-11-05",
-        "subject": "history",
-        "title": "历史·核心问题链1-13课：妈妈念题、孩子答，不会的画圈",
-        "targetValue": 1,
-        "estMinutes": 60,
-        "hardToStart": false,
-        "source": "plan",
-        "planId": "p_midterm_1105",
-        "kpointId": null,
-        "mistakeId": null,
-        "ebbinghausTag": null,
-        "note": "用老师发的学习资料3-9页，答不出的明早考完英语后50分钟再看"
-      },
-      {
-        "id": "t_sprint1105_2",
-        "date": "2026-11-05",
         "subject": "english",
-        "title": "英语家教 20:00-22:00：口头抽查+作文模板，不讲新语法",
+        "title": "英语家教 20:00-22:00：两篇作文（词块→骨架→默写）+ Starter~U3 单词 + 旧题回看",
         "targetValue": 1,
         "estMinutes": 120,
         "hardToStart": false,
         "source": "plan",
         "planId": "p_midterm_1105",
-        "kpointId": null,
+        "kpointId": "e_writing",
         "mistakeId": null,
         "ebbinghausTag": null,
-        "note": "家教前花15分钟默写40个高频词热身"
+        "note": "顺序别乱：①40分钟背词块表和方位句 ②30分钟用骨架拼两篇、不逐字默 ③20分钟挑10个拼写高危词默写 ④剩余时间翻之前做过的题，只讲错因不讲新语法"
+      },
+      {
+        "id": "t_sprint1105_2",
+        "date": "2026-11-05",
+        "subject": "english",
+        "title": "家教前 15 分钟：默写 10 个作文必用词的拼写",
+        "targetValue": 1,
+        "estMinutes": 15,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": "e_vocab_spelling",
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "building / library / dining hall / sports hall / blackboard / shelf / engineer / housewife / middle school / behind。只看拼写，不管意思"
       },
       {
         "id": "t_sprint1105_3",
         "date": "2026-11-05",
         "subject": "history",
-        "title": "历史·睡前10分钟：朝代顺序口诀再过一遍",
+        "title": "历史 25 分钟：只过 6 个必考问题链，答不出的画圈",
         "targetValue": 1,
-        "estMinutes": 10,
+        "estMinutes": 25,
         "hardToStart": false,
         "source": "plan",
         "planId": "p_midterm_1105",
         "kpointId": null,
         "mistakeId": null,
         "ebbinghausTag": null,
-        "note": "夏商与西周，东周分两段；春秋和战国，一统秦两汉"
+        "note": "取舍过了：资料少就不用铺满一小时。妈妈念题、孩子口头答，答不出的画圈不纠缠，明早考完英语到 10:10 之间再看那几道"
+      },
+      {
+        "id": "t_sprint1105_4",
+        "date": "2026-11-05",
+        "subject": "history",
+        "title": "睡前 5 分钟：朝代顺序口诀过一遍",
+        "targetValue": 1,
+        "estMinutes": 5,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_midterm_1105",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "夏商与西周，东周分两段；春秋和战国，一统秦两汉；三分魏蜀吴，二晋前后沿"
       }
     ],
     "2026-11-06": [
@@ -957,6 +972,11 @@
       "id": "ai_20261105_1",
       "createdAt": "2026-11-05",
       "raw": "昨晚实况：语文字词已报听写（老师新勾选词表只错4个，订正6-7遍）；生物、地理按提纲过完并打印；道法、历史零复习。道法今日已考放掉。今晚：历史60分钟（零复习且明早10:10考）+ 英语家教（口头抽查模式）+ 数学留给明天中午。"
+    },
+    {
+      "id": "ai_20261105_2",
+      "createdAt": "2026-11-05",
+      "raw": "跟英语老师沟通后调整今晚重心：作文是涨分最快板块，改为两篇范文背诵（校园介绍 / 家庭与房间）+ Starter~U3 单词 + 旧题回看，历史从 60 分钟压到 25 分钟精选问题链+5分钟口诀（资料量小，不值得铺满一小时）。作文策略不做逐字默背，改词块+三段式骨架，防两篇串味。"
     }
   ],
   "habitEvents": [],
