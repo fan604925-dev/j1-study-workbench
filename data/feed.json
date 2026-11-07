@@ -1,7 +1,7 @@
 {
   "app": "j1-study-workbench",
-  "feedVersion": 11,
-  "generatedAt": "2026-11-07T03:04:31.815Z",
+  "feedVersion": 12,
+  "generatedAt": "2026-11-07T03:04:44.186Z",
   "generatedBy": "ai-pipeline",
   "settings": {
     "child": {
@@ -257,7 +257,7 @@
         "id": "t_wk1107_4",
         "date": "2026-11-07",
         "subject": "english",
-        "title": "今晚英语课课课练：课前或课后当堂清",
+        "title": "今晚英语课课练：课前或课后当堂清",
         "targetValue": 1,
         "estMinutes": 30,
         "hardToStart": false,
