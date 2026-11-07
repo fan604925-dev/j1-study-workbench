@@ -1,7 +1,7 @@
 {
   "app": "j1-study-workbench",
-  "feedVersion": 10,
-  "generatedAt": "2026-11-05T10:43:55.313Z",
+  "feedVersion": 11,
+  "generatedAt": "2026-11-07T03:04:31.815Z",
   "generatedBy": "ai-pipeline",
   "settings": {
     "child": {
@@ -209,34 +209,64 @@
     ],
     "2026-11-07": [
       {
-        "id": "t_p_20261104_2026-11-07_0",
-        "planId": "p_20261104",
-        "subject": "english",
-        "kpointId": "english.grammar.simple_present",
-        "title": "英语：一般现在时三单（+s / +es / 变 y 为 i）+ 12 题",
-        "targetValue": 1,
-        "estMinutes": 15,
-        "hardToStart": false
-      },
-      {
-        "id": "t_p_20261104_2026-11-07_1",
-        "planId": "p_20261104",
-        "subject": "english",
-        "kpointId": "english.skill.word_memory",
-        "title": "英语：30 词全滚动听写（我念中文，他写英文）",
-        "targetValue": 1,
-        "estMinutes": 15,
-        "hardToStart": false
-      },
-      {
-        "id": "t_p_20261104_2026-11-07_2",
-        "planId": "p_20261104",
+        "id": "t_wk1107_1",
+        "date": "2026-11-07",
         "subject": "history",
-        "kpointId": "history.qin_han.unification",
-        "title": "历史：秦统一——时间、措施 6 条、意义，做 1 道材料题",
+        "title": "三科试卷速诊 45 分钟：对钉钉答案，只标错因、不订正",
         "targetValue": 1,
-        "estMinutes": 15,
-        "hardToStart": false
+        "estMinutes": 45,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_weekend_1107",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "历史/地理/道法三张卷子摊开，逐题只标三类：①不会(知识盲点) ②会但错(粗心/审题) ③没时间。标完就停，一道都不用抄。会但错的周日下午订正，不会的等拍照录入错题库"
+      },
+      {
+        "id": "t_wk1107_2",
+        "date": "2026-11-07",
+        "subject": "math",
+        "title": "数学课课练 1 份（昨晚猿辅导课对应那份）",
+        "targetValue": 1,
+        "estMinutes": 45,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_weekend_1107",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "趁课上完还热，只做最新这份。三周旧账这周不补——补齐要6小时以上，会把周末全吃光且下周继续欠"
+      },
+      {
+        "id": "t_wk1107_3",
+        "date": "2026-11-07",
+        "subject": "english",
+        "title": "E听说：做完 11/6 那次模拟考试作业 + 记分（11/8 22:00 截止）",
+        "targetValue": 1,
+        "estMinutes": 30,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_weekend_1107",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "先立三条铁律再开始：①戴耳机、麦固定一拳距离、关门窗 ②任何题都不能空着，听不懂也把听到的关键词念出来 ③朗读宁慢勿快，每个词读完整。做完只记分数，不重刷"
+      },
+      {
+        "id": "t_wk1107_4",
+        "date": "2026-11-07",
+        "subject": "english",
+        "title": "今晚英语课课课练：课前或课后当堂清",
+        "targetValue": 1,
+        "estMinutes": 30,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_weekend_1107",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "新课当堂清是止血的关键，别攒到下周。上课钟点若不是19:30，把这块整体顺移，顺序不变"
       }
     ],
     "2026-11-09": [
@@ -333,6 +363,68 @@
         "targetValue": 1,
         "estMinutes": 8,
         "hardToStart": false
+      }
+    ],
+    "2026-11-08": [
+      {
+        "id": "t_wk1108_1",
+        "date": "2026-11-08",
+        "subject": "chinese",
+        "title": "明天上午语文课课练：课后当堂清",
+        "targetValue": 1,
+        "estMinutes": 30,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_weekend_1107",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "同上，新课不欠新债"
+      },
+      {
+        "id": "t_wk1108_2",
+        "date": "2026-11-08",
+        "subject": "history",
+        "title": "三科试卷订正 45 分钟：每科只订 3-5 道「会但错」",
+        "targetValue": 1,
+        "estMinutes": 45,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_weekend_1107",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "只看周六标了②的题，抄题免了，写一句错因就够。标①的盲点等拍照录入，标③的先不管"
+      },
+      {
+        "id": "t_wk1108_3",
+        "date": "2026-11-08",
+        "subject": "english",
+        "title": "E听说复盘 30 分钟：找出空答/被截断的题，提交作业",
+        "targetValue": 1,
+        "estMinutes": 30,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_weekend_1107",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "不追分数，只查两件事：有没有哪一题完全没出声、有没有哪一题说到一半被切掉。11/6 作业今晚22:00截止，务必提交"
+      },
+      {
+        "id": "t_wk1108_4",
+        "date": "2026-11-08",
+        "subject": "math",
+        "title": "补最近一周课课练 1 份（旧账只补这一份）",
+        "targetValue": 1,
+        "estMinutes": 45,
+        "hardToStart": false,
+        "source": "plan",
+        "planId": "p_weekend_1107",
+        "kpointId": null,
+        "mistakeId": null,
+        "ebbinghausTag": null,
+        "note": "更早两周主动放弃。老师若查，照实说期中周断了三周、从这周起跟上即可"
       }
     ]
   },
@@ -992,12 +1084,23 @@
       "id": "ai_20261105_5",
       "createdAt": "2026-11-05",
       "raw": "第一次闭环验证成功：11-05 白天考后孩子反馈「昨晚复习的知识点很多都考到了」，确认命中案例=地理·日本地震成因（板块交界/环太平洋火山地震带）。11-04 晚投入约1小时（生物+地理+语文订正），11-05 命中多题。这是「考前24h精准复习」方法的第一个实证数据点，此前孩子自驱力弱、觉得复习没用，这次是他自己亲口确认「背的考到了」——即时正反馈，比积分/现金奖励都有效。策略：19:00 进门5分钟不做泛泛表扬，用具体证据点火（指着卷子说昨晚背的今天考到了）；今晚历史60分钟=同款方法，明天10:10开考。已考科目不复盘只往前看。"
+    },
+    {
+      "id": "ai_20261107_1",
+      "createdAt": "2026-11-07",
+      "raw": "期中结束进入新阶段。新硬截止：11/20 英语听说考试（机考，形式与E听说App一致）。App数据：10/13模拟11/30、10/24模拟15.8/30、10/30模拟12.6/30、11/6模拟14/30，四次无进步；但10/13练习集84/100(4星)。判断：落差不是英语水平问题，是应试流程问题（空答、作答被截断、麦克风/环境、朗读语速），14分里约5-8分属非能力失分，补流程比补单词快。目标11/20从14提到20+，不设空目标。"
+    },
+    {
+      "id": "ai_20261107_2",
+      "createdAt": "2026-11-07",
+      "raw": "课课练三周欠债的取舍：不补齐。9份左右需6小时以上，等于整个周末，内容是三周前的、老师已讲评、提分性价比最低；且补完下周照样欠。改为止血策略——今晚英语课/明早语文课课练当堂清(新债不欠)，旧账只补最近1周1份，更早的主动放弃并由家长向老师说明。周末总学习量每天150分钟，控制在settings.dailyMaxMinutes=180内，篮球后留足恢复和自由时间。历史/地理/道法三科卷子已发回、答案在钉钉群，周末只做错因分类不逐题订正；分数未告知，暂不录入考试档案，等拍照或报分后再录，不编造。"
     }
   ],
   "habitEvents": [],
   "kpointOverrides": [],
   "kpointStates": {},
   "resetTodoDates": [
-    "2026-11-05"
+    "2026-11-07",
+    "2026-11-08"
   ]
 }
