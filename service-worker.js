@@ -10,7 +10,7 @@
  *    并与 js/store.js 的 DATA_VERSION 成对升级。
  * ============================================================
  */
-const CACHE_NAME = 'j1-v28';
+const CACHE_NAME = 'j1-v29';
 
 const PRECACHE_FILES = [
   'icons/icon-192.png',
